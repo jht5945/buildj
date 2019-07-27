@@ -1,0 +1,14 @@
+[package]
+name = "buildj"
+version = "0.1.0"
+authors = ["Hatter Jiang <jht5945@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+json = "0.11.14"
+term = "0.5.2"
+reqwest = "0.9.18"
+urlencoding = "1.0.0"
+dirs = "2.0.1"
+rust-crypto = "0.2.36"
+rust_util = { git = "https://github.com/jht5945/rust_util" }
