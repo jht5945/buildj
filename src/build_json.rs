@@ -52,7 +52,7 @@ pub fn create_build_json(args: &Vec<String>) {
             print_message(MessageType::ERROR, &format!("Write file failed: {}, error message: {}", BUILD_JSON, err));
         }
     };
- }
+}
 
 pub fn find_build_json_in_current() -> Option<String> {
     let path = fs::canonicalize(".").ok()?;
