@@ -70,5 +70,24 @@ JVM:          1.8.0 (Oracle Corporation 25.0-b70)
 OS:           Mac OS X 10.14.4 x86_64
 ```
 
+Create build.json
+```
+$ buildj :::create --java1.8 --maven3.5.1
+[INFO] buildj - version 0.1
+[INFO] Arguments: ["./buildj", ":::create", "--java1.8", "--maven3.5.1"]
+[OK   ] Write file success: build.json
 
+$ cat build.json 
+{
+    "java": "1.8",
+    "builder": {
+        "name": "gradle",
+        "version": "3.5.1"
+    }
+}
+```
 
+Run:
+```
+$ buildj
+```
