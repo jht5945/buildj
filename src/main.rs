@@ -27,7 +27,8 @@ use jdk::*;
 use build_json::*;
 
 const BUILDJ: &str = "buildj";
-const BUDERJ_VER: &str = "0.1";
+const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
+
 
 fn print_usage() {
     print!(r#"
