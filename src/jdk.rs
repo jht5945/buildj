@@ -20,6 +20,7 @@ use super::{
 };
 
 const OPENJDK_MACOS: &str = "openjdk-osx";
+const JDK_LINUX: &str = "jdk-linux";
 const OPENJDK_LINUX: &str = "openjdk-linux";
 
 pub const LOCAL_JAVA_HOME_BASE_DIR: &str = ".jssp/jdks";
@@ -41,24 +42,26 @@ pub fn get_cloud_java(version: &str) -> bool {
     if ! is_macos_or_linux() {
         return false;
     }
-    let cloud_java_name = if is_macos() {
-        OPENJDK_MACOS
+    let cloud_java_names = if is_macos() {
+        vec![OPENJDK_MACOS]
     } else if is_linux() {
-        OPENJDK_LINUX
+        vec![JDK_LINUX, OPENJDK_LINUX]
     } else {
-        "" 
+        vec![] 
     };
     let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
         Err(_) => return false,
         Ok(o) => o,
     };
-    match tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false) {
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Get java failed, version: {}, error: {}", version, err));
-            return false;
-        },
-        Ok(_) => true,
+    for i in 0..cloud_java_names.len() {
+        let cloud_java_name = cloud_java_names[i];
+        match tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false) {
+            Err(_) => (),
+            Ok(_) => return true,
+        }
     }
+    print_message(MessageType::ERROR, &format!("Get java failed, version: {}", version));
+    false
 }
 
 pub fn get_macos_java_home(version: &str) -> Option<String> {
