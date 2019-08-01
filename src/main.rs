@@ -28,6 +28,7 @@ use build_json::*;
 
 const BUILDJ: &str = "buildj";
 const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
+const GIT_HASH: &str = env!("GIT_HASH");
 
 
 fn print_usage() {
@@ -150,7 +151,7 @@ fn do_with_buildin_args(args: &Vec<String>) {
 
 
 fn main() {
-    print_message(MessageType::INFO, &format!("{} - version {}", BUILDJ, BUDERJ_VER));
+    print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
 
     let args = local_util::get_args_as_vec();
     print_message(MessageType::INFO, &format!("Arguments: {:?}", args));
