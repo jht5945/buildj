@@ -200,11 +200,9 @@ fn main() {
     print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
 
     let mut new_env = get_env_with_java_home(&java_home);
-    match builder_desc.name {
-        BuilderName::Maven => new_env.insert("MAVEN_HOME".to_string(), builder_desc.home.clone()),
-        BuilderName::Gradle => new_env.insert("GRADLE_HOME".to_string(), builder_desc.home.clone()),
-    };
-
+    let builder_home_env = match builder_desc.name { BuilderName::Maven => "MAVEN_HOME", BuilderName::Gradle => "GRADLE_HOME", };
+    new_env.insert(builder_home_env.to_string(), builder_desc.home.clone());
+   
     let cmd_bin = match builder_desc.name {
         BuilderName::Maven => builder_desc.bin.unwrap_or(format!("{}/bin/mvn", builder_desc.home.clone())),
         BuilderName::Gradle => builder_desc.bin.unwrap_or(format!("{}/bin/gradle", builder_desc.home.clone())),
