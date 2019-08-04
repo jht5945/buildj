@@ -116,11 +116,8 @@ pub fn init_home_dir(home_sub_dir: &str) {
 
 pub fn init_dir(dir: &str) {
     if ! Path::new(dir).exists() {
-        match fs::create_dir_all(dir) {
-            Ok(_) => (),
-            Err(err) => {
-                print_message(MessageType::ERROR, &format!("Init dir {} failed: {}", dir, err));
-            },
-        }
+        fs::create_dir_all(dir).unwrap_or_else(|err| {
+            print_message(MessageType::ERROR, &format!("Init dir {} failed: {}", dir, err));
+        });
     }
 }
