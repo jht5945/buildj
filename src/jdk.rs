@@ -49,7 +49,7 @@ pub fn get_cloud_java(version: &str) -> bool {
     } else if is_linux() {
         vec![JDK_LINUX, OPENJDK_LINUX]
     } else {
-        vec![] 
+        vec![]
     };
     let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
         Err(_) => return false,
