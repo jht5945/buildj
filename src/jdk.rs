@@ -57,9 +57,8 @@ pub fn get_cloud_java(version: &str) -> bool {
     };
     for i in 0..cloud_java_names.len() {
         let cloud_java_name = cloud_java_names[i];
-        match tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false) {
-            Err(_) => (),
-            Ok(_) => return true,
+        if tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false).is_ok() {
+            return true;
         }
     }
     print_message(MessageType::ERROR, &format!("Get java failed, version: {}", version));
@@ -73,7 +72,7 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
     let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;
     if str::from_utf8(&output.stderr).ok()?.contains("Unable to find any JVMs") {
         return None;
-    };
+    }
     Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
 }
 
