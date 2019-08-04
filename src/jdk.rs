@@ -70,18 +70,9 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
     if ! is_macos() {
         return None;
     }
-    let output = match Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output() {
-        Err(_) => return None,
-        Ok(o) => o,
-    };
-    match str::from_utf8(&output.stderr) {
-        Err(_) => (),
-        Ok(o) => {
-            // Unable to find any JVMs matching version "1.6".
-            if o.contains("Unable to find any JVMs") {
-                return None;
-            }
-        },
+    let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;
+    if str::from_utf8(&output.stderr).ok()?.contains("Unable to find any JVMs") {
+        return None;
     };
     Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
 }
