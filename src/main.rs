@@ -49,12 +49,9 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &Vec<String>) {
             if args.len() > 2 {
                 cmd.args(&args[2..]);
             }
-            match run_command_and_wait(&mut cmd) {
-                Err(err) => {
-                    print_message(MessageType::ERROR, &format!("Exec java failed: {}", err));
-                },
-                Ok(_) => (),
-            };
+            run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+                print_message(MessageType::ERROR, &format!("Exec java failed: {}", err));
+            });
         },
     };
 }
