@@ -115,13 +115,12 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
 }
 
 pub fn extract_jdk_and_wait(file_name: &str) {
-    let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
-        Err(_) => return,
-        Ok(o) => o,
+    match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
+        Err(_) => (),
+        Ok(local_java_home_base_dir) => local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
+            print_message(MessageType::ERROR, &format!("Extract file: {}, failed: {}", file_name, err));
+        }),
     };
-    local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
-        print_message(MessageType::ERROR, &format!("Extract file: {}, failed: {}", file_name, err));
-    });
 }
 
 pub fn get_env() -> HashMap<String, String> {
