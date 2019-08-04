@@ -127,10 +127,9 @@ pub fn extract_jdk_and_wait(file_name: &str) {
         Err(_) => return,
         Ok(o) => o,
     };
-    match local_util::extract_package_and_wait(&local_java_home_base_dir, file_name) {
-        Err(err) => print_message(MessageType::ERROR, &format!("Extract file: {}, failed: {}", file_name, err)),
-        Ok(_) => (),
-    };
+    local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
+        print_message(MessageType::ERROR, &format!("Extract file: {}, failed: {}", file_name, err));
+    });
 }
 
 pub fn get_env() -> HashMap<String, String> {
