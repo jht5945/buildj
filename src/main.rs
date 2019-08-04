@@ -112,13 +112,9 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
     for i in from_index..args.len() {
         cmd.arg(&args[i]);
     }
-    match run_command_and_wait(&mut cmd) {
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
-            return;
-        },
-        Ok(_) => (),
-    };
+    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+        print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
+    });
 }
 
 fn do_with_buildin_args(args: &Vec<String>) {
@@ -222,11 +218,7 @@ fn main() {
     for i in 1..args.len() {
         cmd.arg(&args[i]);
     }
-    match run_command_and_wait(&mut cmd) {
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
-            return;
-        },
-        Ok(_) => (),
-    };
+    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+        print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
+    });
 }
