@@ -91,7 +91,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                     }
                     let last_index_of_slash = path_name.rfind('/');
                     match last_index_of_slash {
-                        None => {},
+                        None => (),
                         Some(i) => path_name = &path_name[i+1..],
                     };
                     let mut matched_path = "";
