@@ -23,6 +23,8 @@ const OPENJDK_MACOS: &str = "openjdk-osx";
 const JDK_LINUX: &str = "jdk-linux";
 const OPENJDK_LINUX: &str = "openjdk-linux";
 
+const MACOS_LIBEXEC_JAVAHOME: &str = "/usr/libexec/java_home";
+
 pub const LOCAL_JAVA_HOME_BASE_DIR: &str = ".jssp/jdks";
 
 pub fn get_java_home(version: &str) -> Option<String> {
@@ -68,7 +70,7 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
     if ! is_macos() {
         return None;
     }
-    let output = match Command::new("/usr/libexec/java_home").arg("-version").arg(version).output() {
+    let output = match Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output() {
         Err(_) => return None,
         Ok(o) => o,
     };
