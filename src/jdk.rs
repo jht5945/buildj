@@ -55,8 +55,7 @@ pub fn get_cloud_java(version: &str) -> bool {
         Err(_) => return false,
         Ok(o) => o,
     };
-    for i in 0..cloud_java_names.len() {
-        let cloud_java_name = cloud_java_names[i];
+    for cloud_java_name in cloud_java_names {
         if tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false).is_ok() {
             return true;
         }
