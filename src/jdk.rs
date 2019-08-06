@@ -9,11 +9,15 @@ use std::{
 
 use super::{
     rust_util::{
-        is_macos,
-        is_linux,
-        is_macos_or_linux,
-        print_message,
-        MessageType,
+        util_os::{
+            is_macos,
+            is_linux,
+            is_macos_or_linux,
+        },
+        util_msg::{
+            print_message,
+            MessageType,
+        },
     },
     local_util,
     tool,

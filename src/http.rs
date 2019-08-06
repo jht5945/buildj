@@ -3,7 +3,7 @@ use std::{
 };
 
 use super::rust_util::{
-    copy_io,
+    util_io::copy_io,
     XResult,
 };
 

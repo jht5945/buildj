@@ -7,9 +7,11 @@ use super::{
     http,
     rust_util::{
         new_box_error,
-        is_macos_or_linux,
-        print_message,
-        MessageType,
+        util_os::is_macos_or_linux,
+        util_msg::{
+            print_message,
+            MessageType,
+        },
         XResult,
     },
     local_util::{self, *},

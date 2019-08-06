@@ -19,9 +19,11 @@ use std::{
 };
 
 use rust_util::{
-    print_message,
+    util_msg::{
+        print_message,
+        MessageType,
+    },
     run_command_and_wait,
-    MessageType,
 };
 use tool::*;
 use jdk::*;

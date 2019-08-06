@@ -8,10 +8,12 @@ use std::{
 
 use super::rust_util::{
     new_box_error,
-    print_message,
+    util_msg::{
+        print_message,
+        MessageType,
+    },
     XResult,
-    MessageType,
-    DEFAULT_BUF_SIZE,
+    util_io::DEFAULT_BUF_SIZE,
 };
 
 use crypto::{
