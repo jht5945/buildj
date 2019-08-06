@@ -2,7 +2,7 @@ use std::{
     fs::File,
 };
 
-use super::rust_util::{
+use rust_util::{
     util_io::copy_io,
     XResult,
 };

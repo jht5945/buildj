@@ -3,7 +3,7 @@ use std::{
     path::Path,
 };
 
-use super::rust_util::util_msg::{
+use rust_util::util_msg::{
     print_message,
     MessageType,
 };

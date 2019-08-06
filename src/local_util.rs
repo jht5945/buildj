@@ -6,7 +6,7 @@ use std::{
     process::Command,
 };
 
-use super::rust_util::{
+use rust_util::{
     new_box_error,
     util_msg::{
         print_message,
