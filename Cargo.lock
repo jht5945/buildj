@@ -1094,7 +1094,7 @@ dependencies = [
 [[package]]
 name = "rust_util"
 version = "0.1.0"
-source = "git+https://github.com/jht5945/rust_util#f5fe205b78286f47a3af844c0691d703e96aacdd"
+source = "git+https://github.com/jht5945/rust_util#5cae3115806ef87926cffdc814c5e5575070cc44"
 dependencies = [
  "term 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "term_size 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",

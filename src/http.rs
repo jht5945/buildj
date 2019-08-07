@@ -16,7 +16,7 @@ use super::misc::*;
 pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     let verbose = is_verbose();
     if verbose {
-        print_message(MessageType::INFO, &format!("Download URL: {}", url));
+        print_message(MessageType::DEBUG, &format!("Download URL: {}", url));
     }
     let mut response = reqwest::get(url)?;
     let header_content_length: i64 = match response.headers().get("content-length") {
@@ -24,7 +24,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
         Some(len_value) => len_value.to_str().unwrap().parse::<i64>().unwrap(),
     };
     if verbose {
-        print_message(MessageType::INFO, &format!("Content-Length: {}", header_content_length));
+        print_message(MessageType::DEBUG, &format!("Content-Length: {}", header_content_length));
     }
     copy_io(&mut response, dest, header_content_length)?;
     Ok(())
@@ -32,7 +32,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
 
 pub fn get_url(url: &str) -> XResult<String> {
     if is_verbose() {
-        print_message(MessageType::INFO, &format!("Get URL: {}", url));
+        print_message(MessageType::DEBUG, &format!("Get URL: {}", url));
     }
     Ok(reqwest::get(url)?.text()?)
 }
