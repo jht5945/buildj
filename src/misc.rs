@@ -1,4 +1,6 @@
 
+use std::env;
+
 pub fn print_usage() {
     print!(r#"
 buildj :::                                             - print this message
@@ -12,3 +14,9 @@ buildj                                                 - run build, run assigned
 "#);
 }
 
+pub fn is_verbose() -> bool {
+    match env::var("BUILDJ_VERBOSE") {
+        Err(_) => false,
+        Ok(v) => (v == "TRUE" || v == "true" || v == "1"),
+    }
+}
