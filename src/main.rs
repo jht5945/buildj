@@ -23,7 +23,7 @@ use rust_util::{
         print_message,
         MessageType,
     },
-    run_command_and_wait,
+    util_cmd::run_command_and_wait,
 };
 use tool::*;
 use jdk::*;
