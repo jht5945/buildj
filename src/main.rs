@@ -142,7 +142,7 @@ fn main() {
 
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Full GIT_HASH: {}", GIT_HASH));
-        print_message(MessageType::DEBUG, &format!("Binary build date: {}", BUILD_DATE));
+        print_message(MessageType::DEBUG, &format!("Build date: {}", BUILD_DATE));
     }
 
     let args = local_util::get_args_as_vec();
