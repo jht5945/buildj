@@ -93,6 +93,9 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
             Ok(dir_entry) => match dir_entry.path().to_str() {
                 None => (),
                 Some(p) => {
+                    if *VERBOSE {
+                        print_message(MessageType::DEBUG, &format!("Try match path: {}", p));
+                    }
                     let mut path_name = p;
                     if p.ends_with("/") {
                         path_name = &path_name[..path_name.len() - 1]
