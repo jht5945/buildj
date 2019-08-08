@@ -21,6 +21,7 @@ use super::{
     },
     local_util,
     tool,
+    misc::*,
 };
 
 const OPENJDK_MACOS: &str = "openjdk-osx";
@@ -73,7 +74,11 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
         return None;
     }
     let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;
-    if str::from_utf8(&output.stderr).ok()?.contains("Unable to find any JVMs") {
+    let output_in_utf8 = str::from_utf8(&output.stderr).ok()?;
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("java_home outputs: {}", output_in_utf8));
+    }
+    if output_in_utf8.contains("Unable to find any JVMs") {
         return None;
     }
     Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
