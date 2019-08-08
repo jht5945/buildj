@@ -5,6 +5,8 @@ extern crate dirs;
 extern crate crypto;
 extern crate urlencoding;
 extern crate rust_util;
+#[macro_use]
+extern crate lazy_static;
 
 pub mod jdk;
 pub mod local_util;
@@ -33,6 +35,7 @@ use misc::*;
 const BUILDJ: &str = "buildj";
 const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
 const GIT_HASH: &str = env!("GIT_HASH");
+const BUILD_DATE: &str = env!("BUILD_DATE");
 
 
 fn do_with_buildin_arg_java(first_arg: &str, args: &Vec<String>) {
@@ -136,6 +139,11 @@ fn do_with_buildin_args(args: &Vec<String>) {
 
 fn main() {
     print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
+
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Full GIT_HASH: {}", GIT_HASH));
+        print_message(MessageType::DEBUG, &format!("Binary build date: {}", BUILD_DATE));
+    }
 
     let args = local_util::get_args_as_vec();
     print_message(MessageType::INFO, &format!("Arguments: {:?}", args));

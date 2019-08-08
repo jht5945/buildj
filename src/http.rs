@@ -11,11 +11,12 @@ use rust_util::{
     XResult,
 };
 
-use super::misc::*;
+use super::misc::{
+    VERBOSE,
+};
 
 pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
-    let verbose = is_verbose();
-    if verbose {
+    if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Download URL: {}", url));
     }
     let mut response = reqwest::get(url)?;
@@ -23,7 +24,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
         None => -1,
         Some(len_value) => len_value.to_str().unwrap().parse::<i64>().unwrap(),
     };
-    if verbose {
+    if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Content-Length: {}", header_content_length));
     }
     copy_io(&mut response, dest, header_content_length)?;
@@ -31,7 +32,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
 }
 
 pub fn get_url(url: &str) -> XResult<String> {
-    if is_verbose() {
+    if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Get URL: {}", url));
     }
     Ok(reqwest::get(url)?.text()?)
