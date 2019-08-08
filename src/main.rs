@@ -188,14 +188,14 @@ fn main() {
         print_message(MessageType::ERROR, "Builder name or version is not assigned!");
         return;
     }
-    if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Java version: {}", java_version_j.as_str()));
-        print_message(MessageType::DEBUG, &format!("Builder name: {}", builder_name_j.as_str()));
-        print_message(MessageType::DEBUG, &format!("Builder version: {}", builder_version_j.as_str()));
-    }
     let java_version = java_version_j.as_str().unwrap();
     let builder_name = builder_name_j.as_str().unwrap();
     let builder_version = builder_version_j.as_str().unwrap();
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Java version: {}", java_version));
+        print_message(MessageType::DEBUG, &format!("Builder name: {}", builder_name));
+        print_message(MessageType::DEBUG, &format!("Builder version: {}", builder_version));
+    }
 
     let java_home = match get_java_home(java_version) {
         None => {
