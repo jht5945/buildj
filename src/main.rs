@@ -228,6 +228,12 @@ fn main() {
     for i in 1..args.len() {
         cmd.arg(&args[i]);
     }
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, "Environment variables:");
+        for (k, v) in new_env {
+            print_message(MessageType::DEBUG, &format!("{}={}", k, v));
+        }
+    }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
     });
