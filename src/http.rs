@@ -17,7 +17,7 @@ use super::misc::{
 
 pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Download URL: {}", url));
+        print_message(MessageType::DEBUG, &format!("Start download URL: {}", url));
     }
     let mut response = reqwest::get(url)?;
     let header_content_length: i64 = match response.headers().get("content-length") {

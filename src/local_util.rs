@@ -4,6 +4,7 @@ use std::{
     io::{Read, ErrorKind},
     path::Path,
     process::Command,
+    time::{SystemTime, Duration},
 };
 
 use rust_util::{
@@ -13,7 +14,9 @@ use rust_util::{
         MessageType,
     },
     XResult,
-    util_io::DEFAULT_BUF_SIZE,
+    util_io::*,
+    util_msg::*,
+    util_size::*,
 };
 
 use crypto::{
@@ -55,18 +58,47 @@ pub fn calc_sha256(d: &[u8]) -> String {
     sha256.result_str()
 }
 
+fn print_status_last_line(head: &str, total: i64, written: i64, cost: Duration) {
+    let mut download_speed = "-".to_string();
+    let cost_as_secs = cost.as_secs();
+    if cost_as_secs > 0 {
+        download_speed = format!("{}/s", get_display_size((written / (cost_as_secs as i64)) as i64));
+    }
+    if total > 0 {
+        print_lastline(&format!("{}, Total: {}, Finished: {}, Speed: {}",
+            head,
+            get_display_size(total),
+            get_display_size(written),
+            download_speed));
+    } else {
+        print_lastline(&format!("{}, Finished: {}, Speed: {}",
+            head,
+            get_display_size(written),
+            download_speed));
+    }
+}
+
 pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
     let mut sha256 = Sha256::new();
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
+    let file_len = match f.metadata() {
+        Err(_) => -1i64,
+        Ok(meta_data) => meta_data.len() as i64,
+    };
+    let start = SystemTime::now();
+    let mut written = 0i64;
     loop {
         let len = match f.read(&mut buf) {
-            Ok(0) => return Ok(sha256.result_str()),
+            Ok(0) => { println!(); return Ok(sha256.result_str()); },
             Ok(len) => len,
             Err(ref e) if e.kind() == ErrorKind::Interrupted => continue,
             Err(e) => return Err(Box::new(e)),
         };
         sha256.input(&buf[..len]);
+        written += len as i64;
+        let cost = SystemTime::now().duration_since(start.clone()).unwrap();
+        print_status_last_line("Calc SHA256", file_len, written, cost);
     }
 }
 
