@@ -4,7 +4,7 @@ use std::{
     io::{Read, ErrorKind},
     path::Path,
     process::Command,
-    time::{SystemTime, Duration},
+    time::SystemTime,
 };
 
 use rust_util::{
@@ -15,8 +15,6 @@ use rust_util::{
     },
     XResult,
     util_io::*,
-    util_msg::*,
-    util_size::*,
 };
 
 use crypto::{
@@ -56,27 +54,6 @@ pub fn calc_sha256(d: &[u8]) -> String {
     let mut sha256 = Sha256::new();
     sha256.input(d);
     sha256.result_str()
-}
-
-// TODO move to rust_util
-fn print_status_last_line(head: &str, total: i64, written: i64, cost: Duration) {
-    let mut download_speed = "-".to_string();
-    let cost_as_secs = cost.as_secs();
-    if cost_as_secs > 0 {
-        download_speed = format!("{}/s", get_display_size((written / (cost_as_secs as i64)) as i64));
-    }
-    if total > 0 {
-        print_lastline(&format!("{}, Total: {}, Finished: {}, Speed: {}",
-            head,
-            get_display_size(total),
-            get_display_size(written),
-            download_speed));
-    } else {
-        print_lastline(&format!("{}, Finished: {}, Speed: {}",
-            head,
-            get_display_size(written),
-            download_speed));
-    }
 }
 
 pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
