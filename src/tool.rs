@@ -15,6 +15,7 @@ use super::{
         XResult,
     },
     local_util::{self, *},
+    misc::*,
 };
 
 pub const LOCAL_BUILDER_HOME_BASE_DIR: &str = ".jssp/builder";
@@ -156,6 +157,9 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
 pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &str, version: &str, extract_match: bool) -> XResult<bool> {
     let tool_package_detail = get_tool_package_detail(name, version)?;
     let build_json_object = json::parse(&tool_package_detail)?;
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Get tool {}:{}, result JSON: {}", name, version, json::stringify_pretty(build_json_object.clone(), 4)));
+    }
     if build_json_object["status"] != 200 {
         return Err(new_box_error(&format!("Error in get tool package detail: {}", build_json_object["message"])));
     }
