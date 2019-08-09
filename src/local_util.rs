@@ -58,6 +58,7 @@ pub fn calc_sha256(d: &[u8]) -> String {
     sha256.result_str()
 }
 
+// TODO move to rust_util
 fn print_status_last_line(head: &str, total: i64, written: i64, cost: Duration) {
     let mut download_speed = "-".to_string();
     let cost_as_secs = cost.as_secs();
