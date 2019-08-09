@@ -180,6 +180,10 @@ fn main() {
     let java_version_j = &build_json_object["java"];
     let builder_name_j = &build_json_object["builder"]["name"];
     let builder_version_j = &build_json_object["builder"]["version"];
+    let envs_j = &build_json_object["envs"];
+    // envs: [
+    //  ["A", "a"]
+    //]
     if java_version_j.is_null() {
         print_message(MessageType::ERROR, "Java version is not assigned!");
         return;
@@ -217,6 +221,20 @@ fn main() {
     let mut new_env = get_env_with_java_home(&java_home);
     let builder_home_env = match builder_desc.name { BuilderName::Maven => "MAVEN_HOME", BuilderName::Gradle => "GRADLE_HOME", };
     new_env.insert(builder_home_env.to_string(), builder_desc.home.clone());
+
+    if ! envs_j.is_null() {
+        for env in envs_j.members() {
+            if *VERBOSE {
+                print_message(MessageType::DEBUG, &format!("Env: {}", env));
+            }
+            let env_k = &env[0];
+            let env_v = &env[1];
+            if env_k.is_null() || env_v.is_null() {
+                continue;
+            }
+            new_env.insert(env_k.as_str().unwrap().to_string(), env_v.as_str().unwrap().to_string());
+        }
+    }
    
     let cmd_bin = match builder_desc.name {
         BuilderName::Maven => builder_desc.bin.unwrap_or(format!("{}/bin/mvn", builder_desc.home.clone())),
