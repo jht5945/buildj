@@ -91,3 +91,29 @@ Run:
 ```
 $ buildj
 ```
+
+<br>
+
+Add environment in build:
+```
+{
+    "envs": [
+        ["VAR_NAME", "VAR_VALUE"]
+    ]
+}
+```
+
+<br>
+
+Use xArgs in build:
+```
+{
+    xArgs: {
+        "build": ["clean", "install"]
+    }
+}
+```
+Command: `buildj ::build`
+
+
+
