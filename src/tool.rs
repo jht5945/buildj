@@ -85,7 +85,7 @@ pub fn get_local_builder_home_sub(builder_name: BuilderName, local_builder_home_
         Some(p) => {
             return Some(BuilderDesc{name: builder_name, home: p, bin: None});
         },
-    };
+    }
 }
 
 pub fn get_local_builder_home_sub_first_sub_dir(local_builder_home_dir: &str) -> Option<String> {

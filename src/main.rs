@@ -152,7 +152,13 @@ fn main() {
         do_with_buildin_args(&args);
         return;
     }
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Init home dir: {}", tool::LOCAL_BUILDER_HOME_BASE_DIR));
+    }
     local_util::init_home_dir(tool::LOCAL_BUILDER_HOME_BASE_DIR);
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Init home dir: {}", jdk::LOCAL_JAVA_HOME_BASE_DIR));
+    }
     local_util::init_home_dir(jdk::LOCAL_JAVA_HOME_BASE_DIR);
 
     let build_json = match find_build_json() {
