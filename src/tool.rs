@@ -34,6 +34,27 @@ pub struct BuilderDesc {
     pub bin: Option<String>,
 }
 
+impl BuilderDesc {
+    pub fn get_builder_home_name(&self) -> String {
+        match self.name {
+            BuilderName::Maven => "MAVEN_HOME".to_string(),
+            BuilderName::Gradle => "GRADLE_HOME".to_string(),
+        }
+    }
+
+    pub fn get_builder_bin(&self) -> String {
+        match &self.bin {
+            Some(b) => b.clone(),
+            None => {
+                match self.name {
+                    BuilderName::Maven => format!("{}/bin/mvn", self.home.clone()),
+                    BuilderName::Gradle => format!("{}/bin/gradle", self.home.clone()),
+                }
+            }
+        }
+    }
+}
+
 pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
     let local_builder_home_base_dir = match get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
         Err(_) => return None,

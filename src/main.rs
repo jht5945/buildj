@@ -282,17 +282,10 @@ fn main() {
     print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
 
     let mut new_env = get_env_with_java_home(&java_home);
-    let builder_home_env = match builder_desc.name { BuilderName::Maven => "MAVEN_HOME", BuilderName::Gradle => "GRADLE_HOME", };
-    new_env.insert(builder_home_env.to_string(), builder_desc.home.clone());
-
+    new_env.insert(builder_desc.get_builder_home_name(), builder_desc.home.clone());
     process_envs(&mut new_env, &build_json_object);
 
-    let cmd_bin = match builder_desc.name {
-        BuilderName::Maven => builder_desc.bin.unwrap_or(format!("{}/bin/mvn", builder_desc.home.clone())),
-        BuilderName::Gradle => builder_desc.bin.unwrap_or(format!("{}/bin/gradle", builder_desc.home.clone())),
-    };
-
-    let mut cmd = Command::new(cmd_bin);
+    let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
 
     let final_args = match get_final_args(&args, &build_json_object) {
