@@ -63,14 +63,14 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &Vec<String>) {
 }
 
 fn do_with_buildin_arg_maven(first_arg: &str, args: &Vec<String>) {
-    do_with_buildin_arg_builder(first_arg, args, "maven", "MAVEN_HOME", "mvn")
+    do_with_buildin_arg_builder(first_arg, args, "maven")
 }
 
 fn do_with_buildin_arg_gradle(first_arg: &str, args: &Vec<String>) {
-    do_with_buildin_arg_builder(first_arg, args, "gradle", "GRADLE_HOME", "gradle")
+    do_with_buildin_arg_builder(first_arg, args, "gradle")
 }
 
-fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name: &str, builder_home: &str, builder_bin: &str) {
+fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name: &str) {
     let builder_version = &first_arg[(builder_name.len() + 3)..];
     if builder_version == "" {
         print_message(MessageType::ERROR, &format!("Builder version is not assigned!"));
@@ -107,9 +107,9 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
         true => get_env_with_java_home(&java_home),
         false => get_env(),
     };
-    new_env.insert(builder_home.to_string(), builder_desc.home.clone());
+    new_env.insert(builder_desc.get_builder_home_name(), builder_desc.home.clone());
 
-    let mut cmd = Command::new(format!("{}/bin/{}", builder_desc.home.clone(), builder_bin));
+    let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
     let from_index = match has_java { true => 3, false => 2 };
     for i in from_index..args.len() {
