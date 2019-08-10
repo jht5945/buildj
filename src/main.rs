@@ -136,7 +136,46 @@ fn do_with_buildin_args(args: &Vec<String>) {
     }
 }
 
-fn get_final_args(args: &Vec<String>, build_json_object: json::JsonValue) -> Option<Vec<String>> {
+fn get_java_and_builder(build_json_object: &json::JsonValue) -> Option<(String, BuilderDesc)> {
+    let java_version_j = &build_json_object["java"];
+    let builder_name_j = &build_json_object["builder"]["name"];
+    let builder_version_j = &build_json_object["builder"]["version"];
+
+    if java_version_j.is_null() {
+        print_message(MessageType::ERROR, "Java version is not assigned!");
+        return None;
+    }
+    if builder_name_j.is_null() || builder_version_j.is_null() {
+        print_message(MessageType::ERROR, "Builder name or version is not assigned!");
+        return None;
+    }
+    let java_version = java_version_j.as_str().unwrap();
+    let builder_name = builder_name_j.as_str().unwrap();
+    let builder_version = builder_version_j.as_str().unwrap();
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Java version: {}", java_version));
+        print_message(MessageType::DEBUG, &format!("Builder name: {}", builder_name));
+        print_message(MessageType::DEBUG, &format!("Builder version: {}", builder_version));
+    }
+
+    let java_home = match get_java_home(java_version) {
+        None => {
+            print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
+            return None;
+        },
+        Some(h) => h,
+    };
+    let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
+        None => {
+            print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
+            return None;
+        },
+        Some(h) => h,
+    };
+    Some((java_home, builder_desc))
+}
+
+fn get_final_args(args: &Vec<String>, build_json_object: &json::JsonValue) -> Option<Vec<String>> {
     let mut final_args:Vec<String> = vec![];
     if args.len() > 1 {
         let arg1 = &args[1];
@@ -216,44 +255,16 @@ fn main() {
         Ok(object) => object,
     };
 
-    let java_version_j = &build_json_object["java"];
-    let builder_name_j = &build_json_object["builder"]["name"];
-    let builder_version_j = &build_json_object["builder"]["version"];
     let envs_j = &build_json_object["envs"];
     // envs: [
     //  ["A", "a"]
     //]
-    if java_version_j.is_null() {
-        print_message(MessageType::ERROR, "Java version is not assigned!");
-        return;
-    }
-    if builder_name_j.is_null() || builder_version_j.is_null() {
-        print_message(MessageType::ERROR, "Builder name or version is not assigned!");
-        return;
-    }
-    let java_version = java_version_j.as_str().unwrap();
-    let builder_name = builder_name_j.as_str().unwrap();
-    let builder_version = builder_version_j.as_str().unwrap();
-    if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Java version: {}", java_version));
-        print_message(MessageType::DEBUG, &format!("Builder name: {}", builder_name));
-        print_message(MessageType::DEBUG, &format!("Builder version: {}", builder_version));
-    }
 
-    let java_home = match get_java_home(java_version) {
-        None => {
-            print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
-            return;
-        },
-        Some(h) => h,
+    let (java_home, builder_desc) = match get_java_and_builder(&build_json_object) {
+        None => return,
+        Some((java_home, builder_desc)) => (java_home, builder_desc),
     };
-    let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
-        None => {
-            print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
-            return;
-        },
-        Some(h) => h,
-    };
+   
     print_message(MessageType::OK, &format!("JAVA_HOME    = {}", java_home));
     print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
 
@@ -283,7 +294,7 @@ fn main() {
     let mut cmd = Command::new(cmd_bin);
     cmd.envs(&new_env);
 
-    let final_args = match get_final_args(&args, build_json_object) {
+    let final_args = match get_final_args(&args, &build_json_object) {
         None => return,
         Some(fa) => fa,
     };
