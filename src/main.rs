@@ -249,6 +249,7 @@ fn main() {
 
     let mut cmd = Command::new(cmd_bin);
     cmd.envs(&new_env);
+    let mut final_args:Vec<String> = vec![];
     if args.len() > 1 {
         let arg1 = &args[1];
         if arg1.starts_with("::") {
@@ -260,22 +261,28 @@ fn main() {
                     print_message(MessageType::ERROR, "Only on xArgs argument, exit.");
                     return;
                 }
-                cmd.arg(arg1);
+                final_args.push(arg1.to_string());
             } else {
                 for a_j in a_cmd_j.members() {
                     if ! a_j.is_null() {
-                        cmd.arg(a_j.as_str().unwrap());
+                        final_args.push(a_j.as_str().unwrap().to_string());
                     }
                 }
             }
         } else {
-            cmd.arg(arg1);
+            final_args.push(arg1.to_string());
         }
     }
     if args.len() > 2 {
         for i in 2..args.len() {
-            cmd.arg(&args[i]);
+            final_args.push(args[i].to_string());
         }
+    }
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Final arguments: {:?}", &final_args));
+    }
+    for f_arg in final_args {
+        cmd.arg(f_arg);
     }
     if *VERBOSE {
         print_message(MessageType::DEBUG, "-----Environment variables-----");
