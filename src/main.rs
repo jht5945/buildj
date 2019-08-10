@@ -16,6 +16,7 @@ pub mod build_json;
 pub mod misc;
 
 use std::{
+    collections::HashMap,
     fs,
     process::Command,
 };
@@ -208,6 +209,23 @@ fn get_final_args(args: &Vec<String>, build_json_object: &json::JsonValue) -> Op
     Some(final_args)
 }
 
+fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json::JsonValue) {
+    let envs_j = &build_json_object["envs"];
+    if ! envs_j.is_null() {
+        for env in envs_j.members() {
+            if *VERBOSE {
+                print_message(MessageType::DEBUG, &format!("Env: {}", env));
+            }
+            let env_k = &env[0];
+            let env_v = &env[1];
+            if env_k.is_null() || env_v.is_null() {
+                continue;
+            }
+            the_env.insert(env_k.as_str().unwrap().to_string(), env_v.as_str().unwrap().to_string());
+        }
+    }
+}
+
 
 fn main() {
     print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
@@ -267,25 +285,8 @@ fn main() {
     let builder_home_env = match builder_desc.name { BuilderName::Maven => "MAVEN_HOME", BuilderName::Gradle => "GRADLE_HOME", };
     new_env.insert(builder_home_env.to_string(), builder_desc.home.clone());
 
+    process_envs(&mut new_env, &build_json_object);
 
-    let envs_j = &build_json_object["envs"];
-    // envs: [
-    //  ["A", "a"]
-    //]
-    if ! envs_j.is_null() {
-        for env in envs_j.members() {
-            if *VERBOSE {
-                print_message(MessageType::DEBUG, &format!("Env: {}", env));
-            }
-            let env_k = &env[0];
-            let env_v = &env[1];
-            if env_k.is_null() || env_v.is_null() {
-                continue;
-            }
-            new_env.insert(env_k.as_str().unwrap().to_string(), env_v.as_str().unwrap().to_string());
-        }
-    }
-   
     let cmd_bin = match builder_desc.name {
         BuilderName::Maven => builder_desc.bin.unwrap_or(format!("{}/bin/mvn", builder_desc.home.clone())),
         BuilderName::Gradle => builder_desc.bin.unwrap_or(format!("{}/bin/gradle", builder_desc.home.clone())),
