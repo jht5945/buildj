@@ -24,6 +24,9 @@ use super::{
     misc::*,
 };
 
+const PATH: &str = "PATH";
+const JAVA_HOME: &str = "JAVA_HOME";
+
 const OPENJDK_MACOS: &str = "openjdk-osx";
 const JDK_LINUX: &str = "jdk-linux";
 const OPENJDK_LINUX: &str = "openjdk-linux";
@@ -149,16 +152,16 @@ pub fn get_env_with_java_home(java_home: &str) -> HashMap<String, String> {
     let mut new_env: HashMap<String, String> = HashMap::new();
     for (key, value) in env::vars() {
         let key_str = key.as_str();
-        if "JAVA_HOME" == key_str {
+        if JAVA_HOME == key_str {
             // IGNORE JAVA_HOME
-        } else if "PATH" == key_str {
+        } else if PATH == key_str {
             let path = value.to_string();
             let new_path = format!("{}/bin:{}", java_home, path);
-            new_env.insert("PATH".to_string(), new_path);
+            new_env.insert(PATH.to_string(), new_path);
         } else {
             new_env.insert(key, value);
         }
     }
-    new_env.insert("JAVA_HOME".to_string(), java_home.to_string());
+    new_env.insert(JAVA_HOME.to_string(), java_home.to_string());
     new_env
 }
