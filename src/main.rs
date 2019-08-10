@@ -243,7 +243,7 @@ fn read_build_json_object() -> Option<json::JsonValue> {
     match json::parse(&build_json_content) {
         Err(err) => {
             print_message(MessageType::ERROR, &format!("Parse JSON failed: {}", err));
-            return None;
+            None
         },
         Ok(object) => Some(object),
     }
