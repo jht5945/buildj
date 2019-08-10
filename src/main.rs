@@ -255,11 +255,6 @@ fn main() {
         Ok(object) => object,
     };
 
-    let envs_j = &build_json_object["envs"];
-    // envs: [
-    //  ["A", "a"]
-    //]
-
     let (java_home, builder_desc) = match get_java_and_builder(&build_json_object) {
         None => return,
         Some((java_home, builder_desc)) => (java_home, builder_desc),
@@ -272,6 +267,11 @@ fn main() {
     let builder_home_env = match builder_desc.name { BuilderName::Maven => "MAVEN_HOME", BuilderName::Gradle => "GRADLE_HOME", };
     new_env.insert(builder_home_env.to_string(), builder_desc.home.clone());
 
+
+    let envs_j = &build_json_object["envs"];
+    // envs: [
+    //  ["A", "a"]
+    //]
     if ! envs_j.is_null() {
         for env in envs_j.members() {
             if *VERBOSE {
