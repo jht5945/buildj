@@ -226,6 +226,29 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
     }
 }
 
+fn read_build_json_object() -> Option<json::JsonValue> {
+    let build_json = match find_build_json() {
+        None => return None,
+        Some(p) => p,
+    };
+
+    print_message(MessageType::OK, &format!("Find {} @ {}", BUILD_JSON, build_json));
+    let build_json_content = match fs::read_to_string(build_json) {
+        Err(err) => {
+            print_message(MessageType::ERROR, &format!("Read {} failed: {}", BUILD_JSON, err));
+            return None;
+        },
+        Ok(content) => content,
+    };
+    match json::parse(&build_json_content) {
+        Err(err) => {
+            print_message(MessageType::ERROR, &format!("Parse JSON failed: {}", err));
+            return None;
+        },
+        Ok(object) => Some(object),
+    }
+}
+
 
 fn main() {
     print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
@@ -251,26 +274,9 @@ fn main() {
     }
     local_util::init_home_dir(jdk::LOCAL_JAVA_HOME_BASE_DIR);
 
-    let build_json = match find_build_json() {
+    let build_json_object = match read_build_json_object() {
         None => return,
-        Some(p) => p,
-    };
-
-    print_message(MessageType::OK, &format!("Find {} @ {}", BUILD_JSON, build_json));
-
-    let build_json_content = match fs::read_to_string(build_json) {
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Read {} failed: {}", BUILD_JSON, err));
-            return;
-        },
-        Ok(content) => content,
-    };
-    let build_json_object = match json::parse(&build_json_content) {
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Parse JSON failed: {}", err));
-            return;
-        },
-        Ok(object) => object,
+        Some(object) => object,
     };
 
     let (java_home, builder_desc) = match get_java_and_builder(&build_json_object) {
