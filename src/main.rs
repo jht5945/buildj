@@ -136,6 +136,39 @@ fn do_with_buildin_args(args: &Vec<String>) {
     }
 }
 
+fn get_final_args(args: &Vec<String>, build_json_object: json::JsonValue) -> Option<Vec<String>> {
+    let mut final_args:Vec<String> = vec![];
+    if args.len() > 1 {
+        let arg1 = &args[1];
+        if arg1.starts_with("::") {
+            let a_cmd = &arg1[2..];
+            let a_cmd_j = &build_json_object["xArgs"][a_cmd];
+            if a_cmd_j.is_null() {
+                print_message(MessageType::WARN, &format!("xArgs argument not found: {}", a_cmd));
+                if args.len() == 2 {
+                    print_message(MessageType::ERROR, "Only one xArgs argument, exit.");
+                    return None;
+                }
+                final_args.push(arg1.to_string());
+            } else {
+                for a_j in a_cmd_j.members() {
+                    if ! a_j.is_null() {
+                        final_args.push(a_j.as_str().unwrap().to_string());
+                    }
+                }
+            }
+        } else {
+            final_args.push(arg1.to_string());
+        }
+    }
+    if args.len() > 2 {
+        for i in 2..args.len() {
+            final_args.push(args[i].to_string());
+        }
+    }
+    Some(final_args)
+}
+
 
 fn main() {
     print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
@@ -249,35 +282,11 @@ fn main() {
 
     let mut cmd = Command::new(cmd_bin);
     cmd.envs(&new_env);
-    let mut final_args:Vec<String> = vec![];
-    if args.len() > 1 {
-        let arg1 = &args[1];
-        if arg1.starts_with("::") {
-            let a_cmd = &arg1[2..];
-            let a_cmd_j = &build_json_object["xArgs"][a_cmd];
-            if a_cmd_j.is_null() {
-                print_message(MessageType::WARN, &format!("xArgs argument not found: {}", a_cmd));
-                if args.len() == 2 {
-                    print_message(MessageType::ERROR, "Only one xArgs argument, exit.");
-                    return;
-                }
-                final_args.push(arg1.to_string());
-            } else {
-                for a_j in a_cmd_j.members() {
-                    if ! a_j.is_null() {
-                        final_args.push(a_j.as_str().unwrap().to_string());
-                    }
-                }
-            }
-        } else {
-            final_args.push(arg1.to_string());
-        }
-    }
-    if args.len() > 2 {
-        for i in 2..args.len() {
-            final_args.push(args[i].to_string());
-        }
-    }
+
+    let final_args = match get_final_args(&args, build_json_object) {
+        None => return,
+        Some(fa) => fa,
+    };
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Final arguments: {:?}", &final_args));
     }
