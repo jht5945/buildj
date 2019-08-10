@@ -1,12 +1,12 @@
 #[macro_use]
 extern crate json;
+#[macro_use]
+extern crate lazy_static;
 extern crate term;
 extern crate dirs;
 extern crate crypto;
 extern crate urlencoding;
 extern crate rust_util;
-#[macro_use]
-extern crate lazy_static;
 
 pub mod jdk;
 pub mod local_util;
