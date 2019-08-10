@@ -253,7 +253,7 @@ fn main() {
         cmd.arg(&args[i]);
     }
     if *VERBOSE {
-        print_message(MessageType::DEBUG, "Environment variables:");
+        print_message(MessageType::DEBUG, "-----Environment variables-----");
         for (k, v) in new_env {
             print_message(MessageType::DEBUG, &format!("{}={}", k, v));
         }
