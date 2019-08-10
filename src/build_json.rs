@@ -50,7 +50,7 @@ pub fn create_build_json(args: &Vec<String>) {
         },
         Err(err) => {
             print_message(MessageType::ERROR, &format!("Write file failed: {}, error message: {}", BUILD_JSON, err));
-        }
+        },
     };
 }
 
@@ -66,7 +66,14 @@ pub fn find_build_json_in_current() -> Option<String> {
 
 pub fn find_build_json_in_parents() -> Option<String> {
     let mut path = fs::canonicalize(".").ok()?;
+    let mut loop_count = 0usize;
     loop {
+        loop_count += 1usize;
+        if loop_count > 100usize {
+            print_message(MessageType::ERROR, "Find build.json loop more than 100 loop!");
+            return None;
+        }
+
         let p = path.to_str()?;
         if p == "/" {
             return None;
