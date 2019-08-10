@@ -249,8 +249,33 @@ fn main() {
 
     let mut cmd = Command::new(cmd_bin);
     cmd.envs(&new_env);
-    for i in 1..args.len() {
-        cmd.arg(&args[i]);
+    if args.len() > 1 {
+        let arg1 = &args[1];
+        if arg1.starts_with("::") {
+            let a_cmd = &arg1[2..];
+            let a_cmd_j = &build_json_object["xArgs"][a_cmd];
+            if a_cmd_j.is_null() {
+                print_message(MessageType::WARN, &format!("xArgs argument not found: {}", a_cmd));
+                if args.len() == 2 {
+                    print_message(MessageType::ERROR, "Only on xArgs argument, exit.");
+                    return;
+                }
+                cmd.arg(arg1);
+            } else {
+                for a_j in a_cmd_j.members() {
+                    if ! a_j.is_null() {
+                        cmd.arg(a_j.as_str().unwrap());
+                    }
+                }
+            }
+        } else {
+            cmd.arg(arg1);
+        }
+    }
+    if args.len() > 2 {
+        for i in 2..args.len() {
+            cmd.arg(&args[i]);
+        }
     }
     if *VERBOSE {
         print_message(MessageType::DEBUG, "-----Environment variables-----");
