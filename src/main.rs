@@ -258,7 +258,7 @@ fn main() {
             if a_cmd_j.is_null() {
                 print_message(MessageType::WARN, &format!("xArgs argument not found: {}", a_cmd));
                 if args.len() == 2 {
-                    print_message(MessageType::ERROR, "Only on xArgs argument, exit.");
+                    print_message(MessageType::ERROR, "Only one xArgs argument, exit.");
                     return;
                 }
                 final_args.push(arg1.to_string());
