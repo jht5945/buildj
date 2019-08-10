@@ -4,7 +4,7 @@ buildj - java build tool
 #### Install
 
 ```
-cargo install --git https://github.com/jht5945/buildj
+cargo install --git https://github.com/jht5945/buildj [--force]
 ```
 
 #### Usage
