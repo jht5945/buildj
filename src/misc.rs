@@ -26,6 +26,6 @@ buildj                                               - run build, run assigned v
 pub fn is_verbose() -> bool {
     match env::var("BUILDJ_VERBOSE") {
         Err(_) => false,
-        Ok(v) => (v == "TRUE" || v == "true" || v == "1"),
+        Ok(v) => (v == "TRUE" || v == "true" || v =="YES" || v == "yes" || v == "1"),
     }
 }
