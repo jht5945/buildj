@@ -81,13 +81,12 @@ pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
 }
 
 pub fn get_user_home() -> XResult<String> {
-    let home_dir_o = match dirs::home_dir() {
-        None => return Err(new_box_error("Home dir not found!")),
-        Some(home_dir_o) => home_dir_o,
-    };
-    match home_dir_o.to_str() {
-        None => return Err(new_box_error("Home dir not found!")),
-        Some(home_dir_str) => Ok(home_dir_str.to_string()),
+   match dirs::home_dir() {
+        None => Err(new_box_error("Home dir not found!")),
+        Some(home_dir_o) => match home_dir_o.to_str() {
+            None => Err(new_box_error("Home dir not found!")),
+            Some(home_dir_str) => Ok(home_dir_str.to_string()),
+        },
     }
 }
 
