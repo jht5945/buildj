@@ -9,6 +9,7 @@ pub fn print_usage() {
     print!(r#"
 buildj :::                                           - print this message
 buildj :::help                                       - print this message
+buildj :::version                                    - print version
 buildj :::create --java<version> --maven<version>    - create java + maven project
   e.g. buildj :::create --java1.8 --maven3.5.2
 buildj :::create --java<version> --gradle<version>   - create java + gradle project
@@ -21,6 +22,15 @@ buildj :::gradle<version> [--java<version>]          - run gradle with assigned 
   e.g. buildj :::gradle3.5.1 --java1.8 ARGS
 buildj                                               - run build, run assigned version builder tool
 "#);
+}
+
+pub fn print_version() {
+  print!(r#"buildj {} - {}
+Copyright (C) 2019 Hatter Jiang.
+License MIT <https://opensource.org/licenses/MIT>
+
+Written by Hatter Jiang
+"#, super::BUDERJ_VER, &super::GIT_HASH[0..7]);
 }
 
 pub fn is_verbose() -> bool {

@@ -124,6 +124,8 @@ fn do_with_buildin_args(args: &Vec<String>) {
      let first_arg = args.get(1).unwrap();
     if first_arg == ":::" || first_arg == ":::help" {
         print_usage();
+    } else if first_arg == ":::version" {
+        print_version();
     } else if first_arg == ":::create" {
         create_build_json(&args);
     } else if first_arg.starts_with(":::java") {
