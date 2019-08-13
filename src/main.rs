@@ -107,7 +107,9 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
         true => get_env_with_java_home(&java_home),
         false => get_env(),
     };
-    new_env.insert(builder_desc.get_builder_home_name(), builder_desc.home.clone());
+    for builder_home_name in builder_desc.get_builder_home_name() {
+        new_env.insert(builder_home_name, builder_desc.home.clone());
+    }
 
     let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
@@ -290,7 +292,9 @@ fn main() {
     print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
 
     let mut new_env = get_env_with_java_home(&java_home);
-    new_env.insert(builder_desc.get_builder_home_name(), builder_desc.home.clone());
+    for builder_home_name in builder_desc.get_builder_home_name() {
+        new_env.insert(builder_home_name, builder_desc.home.clone());
+    }
     process_envs(&mut new_env, &build_json_object);
 
     let mut cmd = Command::new(builder_desc.get_builder_bin());

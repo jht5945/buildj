@@ -36,10 +36,10 @@ pub struct BuilderDesc {
 }
 
 impl BuilderDesc {
-    pub fn get_builder_home_name(&self) -> String {
+    pub fn get_builder_home_name(&self) -> Vec<String> {
         match self.name {
-            BuilderName::Maven => "MAVEN_HOME".to_string(),
-            BuilderName::Gradle => "GRADLE_HOME".to_string(),
+            BuilderName::Maven => vec!["M2_HOME".to_string(), "MAVEN_HOME".to_string()],
+            BuilderName::Gradle => vec!["GRADLE_HOME".to_string()],
         }
     }
 
@@ -156,12 +156,18 @@ pub fn get_tool_package_secret() -> XResult<String> {
 }
 
 pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
-    let secret = match get_tool_package_secret() {
-        Err(err) => {
-            print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
+    let secret = match *NOAUTH {
+        true => {
+            print_message(MessageType::WARN, "Running in no auth mode!");
             None
         },
-        Ok(r) => Some(r),
+        false => match get_tool_package_secret() {
+            Err(err) => {
+                print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
+                None
+            },
+            Ok(r) => Some(r),
+        },
     };
     
     let mut url = String::new();

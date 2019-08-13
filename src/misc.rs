@@ -3,6 +3,7 @@ use std::env;
 
 lazy_static! {
     pub static ref VERBOSE: bool = is_verbose();
+    pub static ref NOAUTH: bool = is_no_auth();
 }
 
 pub fn print_usage() {
@@ -35,6 +36,13 @@ Written by Hatter Jiang
 
 pub fn is_verbose() -> bool {
     match env::var("BUILDJ_VERBOSE") {
+        Err(_) => false,
+        Ok(v) => (v == "TRUE" || v == "true" || v =="YES" || v == "yes" || v == "1"),
+    }
+}
+
+pub fn is_no_auth() -> bool {
+    match env::var("BUILDJ_NOAUTH") {
         Err(_) => false,
         Ok(v) => (v == "TRUE" || v == "true" || v =="YES" || v == "yes" || v == "1"),
     }
