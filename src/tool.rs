@@ -21,6 +21,7 @@ use super::{
 pub const LOCAL_BUILDER_HOME_BASE_DIR: &str = ".jssp/builder";
 const STANDARD_CONFIG_JSON: &str = ".standard_config.json";
 const TOOL_PACKAGE_DETAIL_URL: &str = "https://hatter.ink/tool/query_tool_by_name_version.json";
+const TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH: &str = "https://hatter.ink/tool/query_tool_by_name_version_without_auth.json";
 
 #[derive(Clone, Copy)]
 pub enum BuilderName {
@@ -157,17 +158,25 @@ pub fn get_tool_package_secret() -> XResult<String> {
 pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     let secret = match get_tool_package_secret() {
         Err(err) => {
-            let new_err_message: String = format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON);
-            return Err(new_box_error(&new_err_message))
+            print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
+            None
         },
-        Ok(r) => r,
+        Ok(r) => Some(r),
     };
     
     let mut url = String::new();
-    url.push_str(TOOL_PACKAGE_DETAIL_URL);
+    match secret {
+        None => url.push_str(TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH),
+        Some(_) => url.push_str(TOOL_PACKAGE_DETAIL_URL),
+    };
     url.push_str("?");
-    url.push_str("__auth_token=");
-    url.push_str(&urlencoding::encode(&secret));
+    match secret {
+        None => (),
+        Some(secret) => {
+            url.push_str("__auth_token=");
+            url.push_str(&urlencoding::encode(&secret));
+        },
+    };
     url.push_str("&name=");
     url.push_str(&urlencoding::encode(name));
     url.push_str("&ver=");
