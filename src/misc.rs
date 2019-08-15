@@ -1,8 +1,9 @@
 
-use std::env;
+use rust_util::util_env::*;
 
 lazy_static! {
-    pub static ref VERBOSE: bool = is_verbose();
+    pub static ref VERBOSE: bool = is_env_on("BUILDJ_VERBOSE");
+    pub static ref NOAUTH: bool = is_env_on("BUILDJ_NOAUTH");
 }
 
 pub fn print_usage() {
@@ -21,6 +22,7 @@ buildj :::maven<version> [--java<version>]           - run maven with assigned v
 buildj :::gradle<version> [--java<version>]          - run gradle with assigned version and java version
   e.g. buildj :::gradle3.5.1 --java1.8 ARGS
 buildj                                               - run build, run assigned version builder tool
+BUILDJ_VERBOSE=1 buildj                              - run buildj in verbose mode
 "#);
 }
 
@@ -33,9 +35,3 @@ Written by Hatter Jiang
 "#, super::BUDERJ_VER, &super::GIT_HASH[0..7]);
 }
 
-pub fn is_verbose() -> bool {
-    match env::var("BUILDJ_VERBOSE") {
-        Err(_) => false,
-        Ok(v) => (v == "TRUE" || v == "true" || v =="YES" || v == "yes" || v == "1"),
-    }
-}

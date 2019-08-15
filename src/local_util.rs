@@ -18,8 +18,10 @@ use rust_util::{
 };
 
 use crypto::{
-    sha2::Sha256,
     digest::Digest,
+    md5::Md5,
+    sha1::Sha1,
+    sha2::{Sha256, Sha512},
 };
 
 pub fn get_args_as_vec() -> Vec<String> {
@@ -38,14 +40,27 @@ pub fn is_buildin_args(args: &Vec<String>) -> bool {
 }
 
 pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> {
-    if ! integrity.starts_with("sha256:hex-") {
+    let digest_hex: &str;
+    let calc_digest_hex: String;
+    if integrity.starts_with("sha256:hex-") {
+        digest_hex = &integrity[11..];
+        calc_digest_hex = calc_file_sha256(file_name)?;
+    } else if integrity.starts_with("sha512:hex-") {
+        digest_hex = &integrity[11..];
+        calc_digest_hex = calc_file_sha512(file_name)?;
+    } else if integrity.starts_with("sha1:hex-") {
+        digest_hex = &integrity[9..];
+        calc_digest_hex = calc_file_sha1(file_name)?;
+    } else if integrity.starts_with("md5:hex-") {
+        digest_hex = &integrity[8..];
+        calc_digest_hex = calc_file_md5(file_name)?;
+    } else {
         return Err(new_box_error(&format!("Not supported integrigty: {}", integrity)));
     }
-    let sha256_hex = &integrity[11..];
-    let calc_sha256_hex = calc_file_sha256(file_name)?;
-    let integrity_verify_result = sha256_hex == calc_sha256_hex;
+
+    let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
     if ! integrity_verify_result {
-        print_message(MessageType::ERROR, &format!("Verify integrity failed, expected: {}, actual: {}", sha256_hex, calc_sha256_hex));
+        print_message(MessageType::ERROR, &format!("Verify integrity failed, expected: {}, actual: {}", digest_hex, calc_digest_hex));
     }
     Ok(integrity_verify_result)
 }
@@ -56,8 +71,27 @@ pub fn calc_sha256(d: &[u8]) -> String {
     sha256.result_str()
 }
 
+pub fn calc_file_md5(file_name: &str) -> XResult<String> {
+    let mut digest = Md5::new();
+    calc_file_digest(&mut digest, "MD5", file_name)
+}
+
+pub fn calc_file_sha1(file_name: &str) -> XResult<String> {
+    let mut digest = Sha1::new();
+    calc_file_digest(&mut digest, "SHA1", file_name)
+}
+
 pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
-    let mut sha256 = Sha256::new();
+    let mut digest = Sha256::new();
+    calc_file_digest(&mut digest, "SHA256", file_name)
+}
+
+pub fn calc_file_sha512(file_name: &str) -> XResult<String> {
+    let mut digest = Sha512::new();
+    calc_file_digest(&mut digest, "SHA512", file_name)
+}
+
+pub fn calc_file_digest(digest: &mut Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
     let file_len = match f.metadata() {
@@ -68,15 +102,15 @@ pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
     let mut written = 0i64;
     loop {
         let len = match f.read(&mut buf) {
-            Ok(0) => { println!(); return Ok(sha256.result_str()); },
+            Ok(0) => { println!(); return Ok(digest.result_str()); },
             Ok(len) => len,
             Err(ref e) if e.kind() == ErrorKind::Interrupted => continue,
             Err(e) => return Err(Box::new(e)),
         };
-        sha256.input(&buf[..len]);
+        digest.input(&buf[..len]);
         written += len as i64;
         let cost = SystemTime::now().duration_since(start.clone()).unwrap();
-        print_status_last_line("Calc SHA256", file_len, written, cost);
+        print_status_last_line(&format!("Calc {}", digest_alg), file_len, written, cost);
     }
 }
 
