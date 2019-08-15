@@ -70,6 +70,21 @@ fn do_with_buildin_arg_gradle(first_arg: &str, args: &Vec<String>) {
     do_with_buildin_arg_builder(first_arg, args, "gradle")
 }
 
+fn do_with_buildin_arg_config(_first_arg: &str, args: &Vec<String>) {
+    if args.len() <= 2 {
+        print_message(MessageType::ERROR, "No arguments, show or set.");
+        return;
+    }
+    match args[2].as_str() {
+        "show" => match get_tool_package_secret() {
+                Err(_) => print_message(MessageType::WARN, "No config found."),
+                Ok(secret) => print_message(MessageType::OK, &format!("Config secret: {}", secret)),
+        },
+        // TODO set...
+        arg => print_message(MessageType::ERROR, &format!("Unknown argument: {}", arg))
+    }
+}
+
 fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name: &str) {
     let builder_version = &first_arg[(builder_name.len() + 3)..];
     if builder_version == "" {
@@ -128,6 +143,8 @@ fn do_with_buildin_args(args: &Vec<String>) {
         print_version();
     } else if first_arg == ":::create" {
         create_build_json(&args);
+    } else if first_arg == ":::config" {
+        do_with_buildin_arg_config(first_arg, args);
     } else if first_arg.starts_with(":::java") {
         do_with_buildin_arg_java(first_arg, args);
     } else if first_arg.starts_with(":::maven") {
