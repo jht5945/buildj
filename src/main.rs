@@ -72,15 +72,24 @@ fn do_with_buildin_arg_gradle(first_arg: &str, args: &Vec<String>) {
 
 fn do_with_buildin_arg_config(_first_arg: &str, args: &Vec<String>) {
     if args.len() <= 2 {
-        print_message(MessageType::ERROR, "No arguments, show or set.");
+        print_message(MessageType::ERROR, "No arguments, get or set.");
         return;
     }
     match args[2].as_str() {
-        "show" => match get_tool_package_secret() {
-                Err(_) => print_message(MessageType::WARN, "No config found."),
-                Ok(secret) => print_message(MessageType::OK, &format!("Config secret: {}", secret)),
+        "get" => match get_tool_package_secret() {
+            Err(_) => print_message(MessageType::WARN, "No config found."),
+            Ok(secret) => print_message(MessageType::OK, &format!("Config secret: {}", secret)),
         },
-        // TODO set...
+        "set" => {
+            if args.len() < 4 {
+                print_message(MessageType::ERROR, "Need secret for set, :::set <secret>");
+            } else {
+                match set_tool_package_secret(&args[3]) {
+                    Err(err) => print_message(MessageType::ERROR, &format!("Config secret failed: {}", err)),
+                    Ok(_) => print_message(MessageType::OK, "Config secret success."),
+                }
+            }
+        },
         arg => print_message(MessageType::ERROR, &format!("Unknown argument: {}", arg))
     }
 }

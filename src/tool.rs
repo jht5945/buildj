@@ -155,6 +155,40 @@ pub fn get_tool_package_secret() -> XResult<String> {
     Ok(build_js_auth_token.to_string())
 }
 
+pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
+    let standard_config_file = get_user_home_dir(STANDARD_CONFIG_JSON)?;
+
+    match fs::metadata(&standard_config_file) {
+        Err(_) => {
+            match fs::write(&standard_config_file, json::stringify_pretty(
+                object!{ "build.js" => object!{
+                    "auth_token" => secret, }
+                }, 4)) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(new_box_error(&format!("Write config failed: {}, error message: {}", standard_config_file, err))),
+            }
+        },
+        Ok(f) => {
+            if ! f.is_file() {
+                return Err(new_box_error(&format!("Config is not a file: {}", standard_config_file)));
+            }
+            let standard_config_json = fs::read_to_string(&standard_config_file)?;
+            let mut standard_config_object = json::parse(&standard_config_json)?;
+            if standard_config_object["build.js"].is_null() {
+                standard_config_object["build.js"] = object! {
+                    "auth_token" => secret,
+                };
+            } else {
+                standard_config_object["build.js"]["auth_token"] = secret.into();
+            }
+            match fs::write(&standard_config_file, json::stringify_pretty(standard_config_object, 4)) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(new_box_error(&format!("Write config failed: {}, error message: {}", &standard_config_file, err))),
+            }
+        }
+    }
+}
+
 pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     let secret = match *NOAUTH {
         true => {
