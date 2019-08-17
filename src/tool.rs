@@ -18,6 +18,10 @@ use super::{
     misc::*,
 };
 
+const M2_HOME: &str = "M2_HOME";
+const MAVEN_HOME: &str = "MAVEN_HOME";
+const GRADLE_HOME: &str = "GRADLE_HOME";
+
 pub const LOCAL_BUILDER_HOME_BASE_DIR: &str = ".jssp/builder";
 const STANDARD_CONFIG_JSON: &str = ".standard_config.json";
 const TOOL_PACKAGE_DETAIL_URL: &str = "https://hatter.ink/tool/query_tool_by_name_version.json";
@@ -38,8 +42,8 @@ pub struct BuilderDesc {
 impl BuilderDesc {
     pub fn get_builder_home_name(&self) -> Vec<String> {
         match self.name {
-            BuilderName::Maven => vec!["M2_HOME".to_string(), "MAVEN_HOME".to_string()],
-            BuilderName::Gradle => vec!["GRADLE_HOME".to_string()],
+            BuilderName::Maven => vec![M2_HOME.to_string(), MAVEN_HOME.to_string()],
+            BuilderName::Gradle => vec![GRADLE_HOME.to_string()],
         }
     }
 
