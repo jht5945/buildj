@@ -59,9 +59,10 @@ pub fn find_build_json_in_current() -> Option<String> {
     let p_build_json = &format!("{}/{}", path.to_str()?, BUILD_JSON);
     let path_build_json = Path::new(p_build_json);
     if path_build_json.exists() {
-        return Some(p_build_json.to_string());
+        Some(p_build_json.to_string())
+    } else {
+        None
     }
-    None
 }
 
 pub fn find_build_json_in_parents() -> Option<String> {
