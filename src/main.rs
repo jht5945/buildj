@@ -337,10 +337,11 @@ fn main() {
         cmd.arg(f_arg);
     }
     if *VERBOSE {
-        print_message(MessageType::DEBUG, "-----Environment variables-----");
+        print_message(MessageType::DEBUG, "-----BEGIN ENVIRONMENT VARIABLES-----");
         for (k, v) in new_env {
             print_message(MessageType::DEBUG, &format!("{}={}", k, v));
         }
+        print_message(MessageType::DEBUG, "-----END ENVIRONMENT VARIABLES-----");
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
