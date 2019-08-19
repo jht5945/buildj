@@ -41,29 +41,24 @@ pub fn is_buildin_args(args: &Vec<String>) -> bool {
 }
 
 pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> {
-    let digest_hex: &str;
-    let calc_digest_hex: String;
-    if integrity.starts_with("sha256:hex-") {
-        digest_hex = &integrity[11..];
-        calc_digest_hex = calc_file_sha256(file_name)?;
-    } else if integrity.starts_with("sha512:hex-") {
-        digest_hex = &integrity[11..];
-        calc_digest_hex = calc_file_sha512(file_name)?;
-    } else if integrity.starts_with("sha1:hex-") {
-        digest_hex = &integrity[9..];
-        calc_digest_hex = calc_file_sha1(file_name)?;
-    } else if integrity.starts_with("md5:hex-") {
-        digest_hex = &integrity[8..];
-        calc_digest_hex = calc_file_md5(file_name)?;
-    } else {
-        return Err(new_box_error(&format!("Not supported integrigty: {}", integrity)));
+    match integrity.find('-') {
+        None => Err(new_box_error(&format!("Not supported integrigty: {}", integrity))),
+        Some(index) => {
+            let digest_hex = &integrity[index+1..];
+            let calc_digest_hex = match &integrity[0..index] {
+                "sha256:hex" => calc_file_sha256(file_name)?,
+                "sha512:hex" => calc_file_sha512(file_name)?,
+                "sha1:hex" => calc_file_sha1(file_name)?,
+                "md5:hex" => calc_file_md5(file_name)?,
+                _ => return Err(new_box_error(&format!("Not supported integrigty: {}", integrity))),
+            };
+            let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
+            if ! integrity_verify_result {
+                print_message(MessageType::ERROR, &format!("Verify integrity failed, expected: {}, actual: {}", digest_hex, calc_digest_hex));
+            }
+            Ok(integrity_verify_result)
+        },
     }
-
-    let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
-    if ! integrity_verify_result {
-        print_message(MessageType::ERROR, &format!("Verify integrity failed, expected: {}, actual: {}", digest_hex, calc_digest_hex));
-    }
-    Ok(integrity_verify_result)
 }
 
 pub fn calc_sha256(d: &[u8]) -> String {
