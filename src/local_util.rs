@@ -46,10 +46,10 @@ pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> 
         Some(index) => {
             let digest_hex = &integrity[index+1..];
             let calc_digest_hex = match &integrity[0..index] {
-                "sha256:hex" => calc_file_sha256(file_name)?,
-                "sha512:hex" => calc_file_sha512(file_name)?,
-                "sha1:hex" => calc_file_sha1(file_name)?,
-                "md5:hex" => calc_file_md5(file_name)?,
+                "sha256:hex" => calc_file_digest(&mut Sha256::new(), "SHA256", file_name)?,
+                "sha512:hex" => calc_file_digest(&mut Sha512::new(), "SHA512", file_name)?,
+                "sha1:hex" => calc_file_digest(&mut Sha1::new(), "SHA1", file_name)?,
+                "md5:hex" => calc_file_digest(&mut Md5::new(), "MD5", file_name)?,
                 _ => return Err(new_box_error(&format!("Not supported integrigty: {}", integrity))),
             };
             let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
@@ -65,26 +65,6 @@ pub fn calc_sha256(d: &[u8]) -> String {
     let mut sha256 = Sha256::new();
     sha256.input(d);
     sha256.result_str()
-}
-
-pub fn calc_file_md5(file_name: &str) -> XResult<String> {
-    let mut digest = Md5::new();
-    calc_file_digest(&mut digest, "MD5", file_name)
-}
-
-pub fn calc_file_sha1(file_name: &str) -> XResult<String> {
-    let mut digest = Sha1::new();
-    calc_file_digest(&mut digest, "SHA1", file_name)
-}
-
-pub fn calc_file_sha256(file_name: &str) -> XResult<String> {
-    let mut digest = Sha256::new();
-    calc_file_digest(&mut digest, "SHA256", file_name)
-}
-
-pub fn calc_file_sha512(file_name: &str) -> XResult<String> {
-    let mut digest = Sha512::new();
-    calc_file_digest(&mut digest, "SHA512", file_name)
 }
 
 pub fn calc_file_digest(digest: &mut Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
