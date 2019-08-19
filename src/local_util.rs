@@ -33,9 +33,10 @@ pub fn get_args_as_vec() -> Vec<String> {
 }
 
 pub fn is_buildin_args(args: &Vec<String>) -> bool {
-    match args.len() <= 1 {
-        true => false,
-        false => args.get(1).unwrap().starts_with(":::"),
+    if args.len() <= 1 {
+        false
+    } else {
+        args.get(1).unwrap().starts_with(":::")
     }
 }
 
