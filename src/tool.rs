@@ -153,10 +153,12 @@ pub fn get_tool_package_secret() -> XResult<String> {
     let standard_config_object = json::parse(&standard_config_json)?;
 
     let build_js_auth_token = &standard_config_object["build.js"]["auth_token"];
+    
     if build_js_auth_token.is_null() {
-        return Err(new_box_error("Standard json#build.js#auth_token is null."));
+        Err(new_box_error("Standard json#build.js#auth_token is null."))
+    } else {
+        Ok(build_js_auth_token.to_string())
     }
-    Ok(build_js_auth_token.to_string())
 }
 
 pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
