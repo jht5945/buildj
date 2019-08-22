@@ -212,13 +212,13 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     
     let mut url = String::new();
     match secret {
-        None => url.push_str(TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH),
-        Some(_) => url.push_str(TOOL_PACKAGE_DETAIL_URL),
-    };
-    url.push_str("?");
-    match secret {
-        None => (),
+        None => {
+            url.push_str(TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH);
+            url.push_str("?");
+        },
         Some(secret) => {
+            url.push_str(TOOL_PACKAGE_DETAIL_URL);
+            url.push_str("?");
             url.push_str("__auth_token=");
             url.push_str(&urlencoding::encode(&secret));
         },
