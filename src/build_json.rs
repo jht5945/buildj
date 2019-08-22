@@ -3,12 +3,35 @@ use std::{
     path::Path,
 };
 
-use rust_util::util_msg::{
-    print_message,
-    MessageType,
+use rust_util::{
+    XResult,
+    new_box_ioerror,
+    util_msg::{
+        print_message,
+        MessageType,
+    }
 };
 
+use super::http::get_url;
+
 pub const BUILD_JSON: &str = "build.json";
+
+const GET_ARCHIVER_VERSION_URL: &str= "https://hatter.ink/repo/archive_info_version.json";
+
+pub fn get_archive_version(gid: &str, aid: &str) -> XResult<String> {
+    let mut url = String::from(GET_ARCHIVER_VERSION_URL);
+    url.push_str("?gid=");
+    url.push_str(&urlencoding::encode(gid));
+    url.push_str("&aid=");
+    url.push_str(&urlencoding::encode(aid));
+    let version_result = get_url(url.as_str())?;
+    let version_result_object = json::parse(&version_result)?;
+    if version_result_object["status"] != 200 {
+        Err(new_box_ioerror(&format!("Get archive info version failed: {}", version_result)))
+    } else {
+        Ok(version_result_object["data"].to_string())
+    }
+}
 
 pub fn create_build_json(args: &Vec<String>) {
     match find_build_json_in_current() {
@@ -37,15 +60,18 @@ pub fn create_build_json(args: &Vec<String>) {
         print_message(MessageType::ERROR, "Args java version, builder or builder version is not assigned or format error.");
         return;
     }
-    let build_json_object = object!{
+    let mut build_json_object = object!{
         "java" => java_version,
         "builder" => object! {
             "name" => builder,
             "version" => builder_version,
         },
-        "repo" => object! {
+    };
+    match get_archive_version("me.hatter", "commons") {
+        Err(err) => print_message(MessageType::ERROR, &format!("Get me.hatter:commons version failed: {}", err)),
+        Ok(ver) => build_json_object["repo"] = object! {
             "dependencies" => array! [
-                "me.hatter:commons:1.57" // TODO get latest version
+                format!("me.hatter:commons:{}", ver).as_str()
             ]
         },
     };
