@@ -268,6 +268,8 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     print_message(MessageType::INFO, &format!("Start verify integrity: {} ...", &target_file_name));
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {
         print_message(MessageType::OK, "Verify integrity success.");
+    } else {
+        return Err(new_box_error(&format!("Verify integrity failed!")));
     }
 
     print_message(MessageType::INFO, &format!("Start extract file: {}", &target_file_name));
