@@ -43,6 +43,11 @@ pub fn create_build_json(args: &Vec<String>) {
             "name" => builder,
             "version" => builder_version,
         },
+        "repo" => object! {
+            "dependencies" => array! [
+                "me.hatter:commons:1.57" // TODO get latest version
+            ]
+        },
     };
     match fs::write(BUILD_JSON, json::stringify_pretty(build_json_object, 4)) {
         Ok(_) => {
