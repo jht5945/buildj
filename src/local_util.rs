@@ -8,12 +8,12 @@ use std::{
 };
 
 use rust_util::{
-    new_box_error,
+    XResult,
+    new_box_ioerror,
     util_msg::{
         print_message,
         MessageType,
     },
-    XResult,
     util_io::*,
 };
 
@@ -42,7 +42,7 @@ pub fn is_buildin_args(args: &Vec<String>) -> bool {
 
 pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> {
     match integrity.find('-') {
-        None => Err(new_box_error(&format!("Not supported integrigty: {}", integrity))),
+        None => Err(new_box_ioerror(&format!("Not supported integrigty: {}", integrity))),
         Some(index) => {
             let digest_hex = &integrity[index+1..];
             let calc_digest_hex = match &integrity[0..index] {
@@ -50,7 +50,7 @@ pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> 
                 "sha512:hex" => calc_file_digest(&mut Sha512::new(), "SHA512", file_name)?,
                 "sha1:hex" => calc_file_digest(&mut Sha1::new(), "SHA1", file_name)?,
                 "md5:hex" => calc_file_digest(&mut Md5::new(), "MD5", file_name)?,
-                _ => return Err(new_box_error(&format!("Not supported integrigty: {}", integrity))),
+                _ => return Err(new_box_ioerror(&format!("Not supported integrigty: {}", integrity))),
             };
             let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
             if ! integrity_verify_result {
@@ -92,9 +92,9 @@ pub fn calc_file_digest(digest: &mut Digest, digest_alg: &str, file_name: &str) 
 
 pub fn get_user_home() -> XResult<String> {
    match dirs::home_dir() {
-        None => Err(new_box_error("Home dir not found!")),
+        None => Err(new_box_ioerror("Home dir not found!")),
         Some(home_dir_o) => match home_dir_o.to_str() {
-            None => Err(new_box_error("Home dir not found!")),
+            None => Err(new_box_ioerror("Home dir not found!")),
             Some(home_dir_str) => Ok(home_dir_str.to_string()),
         },
     }
@@ -122,7 +122,7 @@ pub fn extract_package_and_wait(dir: &str, file_name: &str) -> XResult<()> {
         cmd = Command::new("tar");
         cmd.arg("-xzvf");
     } else {
-        return Err(new_box_error(&format!("Unknown file type: {}", file_name)));
+        return Err(new_box_ioerror(&format!("Unknown file type: {}", file_name)));
     }
     cmd.arg(file_name).current_dir(dir).spawn()?.wait()?;
     Ok(())

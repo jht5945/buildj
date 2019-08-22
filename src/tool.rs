@@ -6,13 +6,13 @@ use std::{
 use super::{
     http,
     rust_util::{
-        new_box_error,
+        XResult,
+        new_box_ioerror,
         util_os::is_macos_or_linux,
         util_msg::{
             print_message,
             MessageType,
         },
-        XResult,
     },
     local_util::{self, *},
     misc::*,
@@ -155,7 +155,7 @@ pub fn get_tool_package_secret() -> XResult<String> {
     let build_js_auth_token = &standard_config_object["build.js"]["auth_token"];
     
     if build_js_auth_token.is_null() {
-        Err(new_box_error("Standard json#build.js#auth_token is null."))
+        Err(new_box_ioerror("Standard json#build.js#auth_token is null."))
     } else {
         Ok(build_js_auth_token.to_string())
     }
@@ -171,12 +171,12 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
                     "auth_token" => secret, }
                 }, 4)) {
                 Ok(_) => Ok(()),
-                Err(err) => Err(new_box_error(&format!("Write config failed: {}, error message: {}", standard_config_file, err))),
+                Err(err) => Err(new_box_ioerror(&format!("Write config failed: {}, error message: {}", standard_config_file, err))),
             }
         },
         Ok(f) => {
             if ! f.is_file() {
-                return Err(new_box_error(&format!("Config is not a file: {}", standard_config_file)));
+                return Err(new_box_ioerror(&format!("Config is not a file: {}", standard_config_file)));
             }
             let standard_config_json = fs::read_to_string(&standard_config_file)?;
             let mut standard_config_object = json::parse(&standard_config_json)?;
@@ -189,7 +189,7 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
             }
             match fs::write(&standard_config_file, json::stringify_pretty(standard_config_object, 4)) {
                 Ok(_) => Ok(()),
-                Err(err) => Err(new_box_error(&format!("Write config failed: {}, error message: {}", &standard_config_file, err))),
+                Err(err) => Err(new_box_ioerror(&format!("Write config failed: {}, error message: {}", &standard_config_file, err))),
             }
         }
     }
@@ -237,20 +237,20 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
         print_message(MessageType::DEBUG, &format!("Get tool {}:{}, result JSON: {}", name, version, json::stringify_pretty(build_json_object.clone(), 4)));
     }
     if build_json_object["status"] != 200 {
-        return Err(new_box_error(&format!("Error in get tool package detail: {}", build_json_object["message"])));
+        return Err(new_box_ioerror(&format!("Error in get tool package detail: {}", build_json_object["message"])));
     }
     let data = &build_json_object["data"];
     let integrity = &data["integrity"];
     let url = &data["url"];
     let name = &data["name"];
     if integrity.is_null() || url.is_null() || name.is_null() {
-        return Err(new_box_error(&format!("Parse tool package detail failed: {}", tool_package_detail)));
+        return Err(new_box_ioerror(&format!("Parse tool package detail failed: {}", tool_package_detail)));
     }
     let n = data["n"].to_string();
     let v = data["v"].to_string();
 
     if extract_match &&  version != &v {
-        return Err(new_box_error(&format!("Required version not match, {}: {} vs {}", name, version, &v)));
+        return Err(new_box_ioerror(&format!("Required version not match, {}: {} vs {}", name, version, &v)));
     }
 
     let mut target_base_dir = String::new(); 
@@ -269,7 +269,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {
         print_message(MessageType::OK, "Verify integrity success.");
     } else {
-        return Err(new_box_error(&format!("Verify integrity failed!")));
+        return Err(new_box_ioerror(&format!("Verify integrity failed!")));
     }
 
     print_message(MessageType::INFO, &format!("Start extract file: {}", &target_file_name));
