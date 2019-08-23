@@ -193,18 +193,17 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
 }
 
 pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
-    let secret = match *NOAUTH {
-        true => {
-            print_message(MessageType::WARN, "Running in no auth mode!");
-            None
-        },
-        false => match get_tool_package_secret() {
+    let secret: Option<String> = if *NOAUTH {
+        print_message(MessageType::WARN, "Running in no auth mode!");
+        None
+    } else {
+        match get_tool_package_secret() {
             Err(err) => {
                 print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
                 None
             },
             Ok(r) => Some(r),
-        },
+        }
     };
     
     let mut url = String::new();
