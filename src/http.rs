@@ -11,9 +11,7 @@ use rust_util::{
     XResult,
 };
 
-use super::misc::{
-    VERBOSE,
-};
+use super::misc::VERBOSE;
 
 pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     if *VERBOSE {

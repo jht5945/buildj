@@ -75,9 +75,10 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
         print_message(MessageType::DEBUG, &format!("java_home outputs: {}", output_in_utf8));
     }
     if output_in_utf8.contains("Unable to find any JVMs") {
-        return None;
+        None
+    } else {
+        Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
     }
-    Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
 }
 
 pub fn get_local_java_home(version: &str) -> Option<String> {
