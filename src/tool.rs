@@ -79,10 +79,10 @@ pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
     }
 
     if get_cloud_builder(builder, version) {
-        return get_local_builder_home_sub(builder_name, local_builder_home_dir);
+        get_local_builder_home_sub(builder_name, local_builder_home_dir)
+    } else {
+        None
     }
-
-    None
 }
 
 pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
