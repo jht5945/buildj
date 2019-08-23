@@ -74,11 +74,8 @@ pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
         },
     };
     let local_builder_home_dir = &format!("{}/{}-{}", local_builder_home_base_dir, builder, version);
-    if Path::new(local_builder_home_dir).exists() {
-        return get_local_builder_home_sub(builder_name, local_builder_home_dir);
-    }
 
-    if get_cloud_builder(builder, version) {
+    if Path::new(local_builder_home_dir).exists() || get_cloud_builder(builder, version) {
         get_local_builder_home_sub(builder_name, local_builder_home_dir)
     } else {
         None
