@@ -13,18 +13,25 @@ use rust_util::{
 };
 
 use super::http::get_url;
+use super::misc::VERBOSE;
 
 pub const BUILD_JSON: &str = "build.json";
 
 const GET_ARCHIVER_VERSION_URL: &str= "https://hatter.ink/repo/archive_info_version.json";
 
 pub fn get_archive_version(gid: &str, aid: &str) -> XResult<String> {
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Start get archive info: {}:{}", gid, aid));
+    }
     let mut url = String::from(GET_ARCHIVER_VERSION_URL);
     url.push_str("?gid=");
     url.push_str(&urlencoding::encode(gid));
     url.push_str("&aid=");
     url.push_str(&urlencoding::encode(aid));
     let version_result = get_url(url.as_str())?;
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Get archive result: {}", version_result));
+    }
     let version_result_object = json::parse(&version_result)?;
     if version_result_object["status"] != 200 {
         Err(new_box_ioerror(&format!("Get archive info version failed: {}", version_result)))
