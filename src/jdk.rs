@@ -33,9 +33,10 @@ pub fn get_java_home(version: &str) -> Option<String> {
         Some(j) => Some(j),
         None => match get_local_java_home(version) {
             Some(j) => Some(j),
-            None => match get_cloud_java(version) {
-                    true => get_local_java_home(version),
-                    false => None,
+            None => if get_cloud_java(version) {
+                get_local_java_home(version)
+            } else {
+                None
             },
         },
     }
