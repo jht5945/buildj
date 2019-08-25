@@ -318,7 +318,7 @@ fn main() {
     let args = local_util::get_args_as_vec();
     print_message(MessageType::INFO, &format!("Arguments: {:?}", args));
 
-    if local_util::is_buildin_args(&args) {
+    if (! *NOBUILDIN) && local_util::is_buildin_args(&args) {
         do_with_buildin_args(&args);
         return;
     }

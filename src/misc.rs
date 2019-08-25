@@ -4,6 +4,7 @@ use rust_util::util_env::*;
 lazy_static! {
     pub static ref VERBOSE: bool = is_env_on("BUILDJ_VERBOSE");
     pub static ref NOAUTH: bool = is_env_on("BUILDJ_NOAUTH");
+    pub static ref NOBUILDIN: bool = is_env_on("BUILDJ_NOBUILDIN");
 }
 
 pub fn print_usage() {
