@@ -115,5 +115,18 @@ Use xArgs in build:
 ```
 Command: `buildj ::build`
 
+<br>
+
+Use xRuns in build:
+```
+{
+    xRuns: {
+        "pub": ["./publish"]
+    }
+}
+```
+Command: `buildj ...pub`
+
+
 
 
