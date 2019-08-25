@@ -147,6 +147,10 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
     });
 }
 
+fn do_with_buildin_arg_ddd(_first_arg: &str, _args: &Vec<String>) {
+    // TODO build_json_object.xRuns["arg"]
+}
+
 fn do_with_buildin_args(args: &Vec<String>) {
      let first_arg = args.get(1).unwrap();
     if first_arg == ":::" || first_arg == ":::help" {
@@ -163,6 +167,8 @@ fn do_with_buildin_args(args: &Vec<String>) {
         do_with_buildin_arg_maven(first_arg, args);
     } else if first_arg.starts_with(":::gradle") {
         do_with_buildin_arg_gradle(first_arg, args);
+    } else if first_arg.starts_with("...") {
+        do_with_buildin_arg_ddd(first_arg, args);
     } else {
         print_message(MessageType::ERROR, &format!("Unknown args: {:?}", &args));
     }
