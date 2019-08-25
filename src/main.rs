@@ -158,13 +158,23 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &Vec<String>) {
         return;
     }
     let cmd_name = build_json_object_xrun[0].to_string();
-    let mut cmd = Command::new(cmd_name);
+    let mut cmd = Command::new(&cmd_name);
     cmd.current_dir(".");
+    let mut cmd_args = vec![];
     for i in 1..build_json_object_xrun.len() {
+        if *VERBOSE {
+            cmd_args.push(build_json_object_xrun[i].to_string());
+        }
         cmd.arg(build_json_object_xrun[i].to_string());
     }
     for i in 3..args.len() {
+        if *VERBOSE {
+            cmd_args.push(args[i].to_string());
+        }
         cmd.arg(args[i].to_string());
+    }
+    if *VERBOSE {
+        print_message(MessageType::DEBUG, &format!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args));
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         print_message(MessageType::ERROR, &format!("Run xRun command failed: {}", err));
