@@ -37,6 +37,7 @@ pub fn is_buildin_args(args: &Vec<String>) -> bool {
         false
     } else {
         args.get(1).unwrap().starts_with(":::")
+        || args.get(1).unwrap().starts_with("...")
     }
 }
 

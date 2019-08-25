@@ -147,8 +147,28 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
     });
 }
 
-fn do_with_buildin_arg_ddd(_first_arg: &str, _args: &Vec<String>) {
-    // TODO build_json_object.xRuns["arg"]
+fn do_with_buildin_arg_ddd(first_arg: &str, args: &Vec<String>) {
+    let build_json_object = match read_build_json_object() {
+        None => return,
+        Some(object) => object,
+    };
+    let build_json_object_xrun = &build_json_object["xRuns"][&first_arg[3..]];
+    if build_json_object_xrun.is_null() {
+        print_message(MessageType::ERROR, &format!("Cannot find build.json#xRuns#{}", &first_arg[3..]));
+        return;
+    }
+    let cmd_name = build_json_object_xrun[0].to_string();
+    let mut cmd = Command::new(cmd_name);
+    cmd.current_dir(".");
+    for i in 1..build_json_object_xrun.len() {
+        cmd.arg(build_json_object_xrun[i].to_string());
+    }
+    for i in 3..args.len() {
+        cmd.arg(args[i].to_string());
+    }
+    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+        print_message(MessageType::ERROR, &format!("Run xRun command failed: {}", err));
+    });
 }
 
 fn do_with_buildin_args(args: &Vec<String>) {
