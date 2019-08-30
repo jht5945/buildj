@@ -24,6 +24,7 @@ buildj :::gradle<version> [--java<version>]         - run gradle with assigned v
   e.g. buildj :::gradle3.5.1 --java1.8 ARGS
 buildj                                              - run build, run assigned version builder tool
 BUILDJ_VERBOSE=1 buildj                             - run buildj in verbose mode
+BUILDJ_JAVA_NAME=jdk-name buildj                    - assgin java name, e.g. adoptjdk-linux
 "#);
 }
 

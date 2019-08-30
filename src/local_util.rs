@@ -68,7 +68,7 @@ pub fn calc_sha256(d: &[u8]) -> String {
     sha256.result_str()
 }
 
-pub fn calc_file_digest(digest: &mut Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
+pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
     let file_len = match f.metadata() {

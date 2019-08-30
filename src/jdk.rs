@@ -28,6 +28,10 @@ const MACOS_LIBEXEC_JAVAHOME: &str = "/usr/libexec/java_home";
 
 pub const LOCAL_JAVA_HOME_BASE_DIR: &str = ".jssp/jdks";
 
+lazy_static! {
+    pub static ref BUILDJ_JAVA_NAME: Option<String> = env::var("BUILDJ_JAVA_NAME").ok();
+}
+
 pub fn get_java_home(version: &str) -> Option<String> {
     match get_macos_java_home(version) {
         Some(j) => Some(j),
@@ -46,12 +50,15 @@ pub fn get_cloud_java(version: &str) -> bool {
     if ! is_macos_or_linux() {
         return false;
     }
-    let cloud_java_names = if is_macos() {
-        vec![OPENJDK_MACOS]
-    } else if is_linux() {
-        vec![JDK_LINUX, OPENJDK_LINUX]
-    } else {
-        vec![]
+    let cloud_java_names = match &*BUILDJ_JAVA_NAME {
+        None => if is_macos() {
+            vec![OPENJDK_MACOS]
+        } else if is_linux() {
+            vec![JDK_LINUX, OPENJDK_LINUX]
+        } else {
+            vec![]
+        },
+        Some(buildj_java_name) => vec![buildj_java_name.as_str()],
     };
     let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
         Err(_) => return false,
