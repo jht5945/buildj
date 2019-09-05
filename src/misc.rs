@@ -23,8 +23,9 @@ buildj :::maven<version> [--java<version>]          - run maven with assigned ve
 buildj :::gradle<version> [--java<version>]         - run gradle with assigned version and java version
   e.g. buildj :::gradle3.5.1 --java1.8 ARGS
 buildj                                              - run build, run assigned version builder tool
-NOBUILDIN=1 buildj                                  - ignore buildj buildin commands
+BUILDJ_NOBUILDIN=1 buildj                           - ignore buildj buildin commands
 BUILDJ_VERBOSE=1 buildj                             - run buildj in verbose mode
+BUILDJ_NOAUTH=1 buildj                              - run buildj in no auth mode
 BUILDJ_JAVA_NAME=jdk-name buildj                    - assgin java name, e.g. adoptjdk-linux
 "#);
 }
