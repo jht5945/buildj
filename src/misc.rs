@@ -29,6 +29,7 @@ BUILDJ_NOBUILDIN=1 buildj                           - ignore buildj buildin comm
 BUILDJ_VERBOSE=1 buildj                             - run buildj in verbose mode
 BUILDJ_NOAUTH=1 buildj                              - run buildj in no auth mode
 BUILDJ_JAVA_NAME=jdk-name buildj                    - assgin java name, e.g. adoptjdk-linux
+BUILDJ_AUTH_TOKEN=auth-token buildj                 - assign auth token
 "#);
 }
 
