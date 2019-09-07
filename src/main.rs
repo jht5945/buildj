@@ -82,7 +82,7 @@ fn do_with_buildin_arg_config(_first_arg: &str, args: &Vec<String>) {
         },
         "set" => {
             if args.len() < 4 {
-                print_message(MessageType::ERROR, "Need secret for set, :::set <secret>");
+                print_message(MessageType::ERROR, "Need secret for set, :::config set <secret>");
             } else {
                 match set_tool_package_secret(&args[3]) {
                     Err(err) => print_message(MessageType::ERROR, &format!("Config secret failed: {}", err)),

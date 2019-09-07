@@ -14,6 +14,7 @@ pub fn print_usage() {
 buildj :::                                          - print this message
 buildj :::help                                      - print this message
 buildj :::version                                   - print version
+buildj :::config get|set <secret>                   - get/set config
 buildj :::create --java<version> --maven<version>   - create java + maven project
   e.g. buildj :::create --java1.8 --maven3.5.2
 buildj :::create --java<version> --gradle<version>  - create java + gradle project
