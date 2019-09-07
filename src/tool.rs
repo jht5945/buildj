@@ -146,6 +146,9 @@ pub fn get_extract_dir_name_by_file_name(file_name: &str) -> Option<String> {
 
 pub fn get_tool_package_secret() -> XResult<String> {
     if (*AUTH_TOKEN).is_some() {
+        if *VERBOSE {
+            print_message(MessageType::DEBUG, "Use auth token from env 'BUILDJ_AUTH_TOKEN'");
+        }
         return Ok((*AUTH_TOKEN).as_ref().unwrap().clone());
     }
 
