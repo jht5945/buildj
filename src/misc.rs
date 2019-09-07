@@ -1,10 +1,12 @@
 
+use std::env;
 use rust_util::util_env::*;
 
 lazy_static! {
     pub static ref VERBOSE: bool = is_env_on("BUILDJ_VERBOSE");
     pub static ref NOAUTH: bool = is_env_on("BUILDJ_NOAUTH");
     pub static ref NOBUILDIN: bool = is_env_on("BUILDJ_NOBUILDIN");
+    pub static ref AUTH_TOKEN: Option<String> = env::var("BUILDJ_AUTH_TOKEN").ok();
 }
 
 pub fn print_usage() {

@@ -145,6 +145,10 @@ pub fn get_extract_dir_name_by_file_name(file_name: &str) -> Option<String> {
 }
 
 pub fn get_tool_package_secret() -> XResult<String> {
+    if (*AUTH_TOKEN).is_some() {
+        return Ok((*AUTH_TOKEN).as_ref().unwrap().clone());
+    }
+
     let standard_config_file = get_user_home_dir(STANDARD_CONFIG_JSON)?;
     let standard_config_json = fs::read_to_string(&standard_config_file)?;
     let standard_config_object = json::parse(&standard_config_json)?;
