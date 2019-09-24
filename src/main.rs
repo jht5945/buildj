@@ -294,6 +294,33 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
 }
 
 fn read_build_json_object() -> Option<json::JsonValue> {
+    if (*JAVA_VERSION).is_some() || (*BUILDER_VERSION).is_some() {
+        let mut build_json_object = object!{};
+        if (*JAVA_VERSION).is_some() {
+            build_json_object["java"] = (*JAVA_VERSION).as_ref().unwrap().to_string().into();
+        }
+        if (*BUILDER_VERSION).is_some() {
+            let builder_version = (*BUILDER_VERSION).as_ref().unwrap().to_string();
+            if builder_version.starts_with("gradle") {
+                build_json_object["builder"] = object! {
+                    "name" => "gradle",
+                    "version" => builder_version[6..],
+                };
+            } else if builder_version.starts_with("maven") {
+                build_json_object["builder"] = object! {
+                    "name" => "maven",
+                    "version" => builder_version[5..],
+                };
+            } else {
+                print_message(MessageType::WARN, &format!("Unknown builder: {}", builder_version));
+            }
+        }
+        if *VERBOSE {
+            print_message(MessageType::DEBUG, &format!("Use env configed build.json: {}",  json::stringify(build_json_object.clone())));
+        }
+        return Some(build_json_object);
+    }
+
     let build_json = match find_build_json() {
         None => return None,
         Some(p) => p,

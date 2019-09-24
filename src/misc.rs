@@ -7,6 +7,8 @@ lazy_static! {
     pub static ref NOAUTH: bool = is_env_on("BUILDJ_NOAUTH");
     pub static ref NOBUILDIN: bool = is_env_on("BUILDJ_NOBUILDIN");
     pub static ref AUTH_TOKEN: Option<String> = env::var("BUILDJ_AUTH_TOKEN").ok();
+    pub static ref JAVA_VERSION: Option<String> = env::var("BUILDJ_JAVA").ok();
+    pub static ref BUILDER_VERSION: Option<String> = env::var("BUILDJ_BUILDER").ok();
 }
 
 pub fn print_usage() {
@@ -31,6 +33,7 @@ BUILDJ_VERBOSE=1 buildj                             - run buildj in verbose mode
 BUILDJ_NOAUTH=1 buildj                              - run buildj in no auth mode
 BUILDJ_JAVA_NAME=jdk-name buildj                    - assgin java name, e.g. adoptjdk-linux
 BUILDJ_AUTH_TOKEN=auth-token buildj                 - assign auth token
+BUILDJ_JAVA=1.8 BUILDJ_BUILDER=maven3.5.2 buildj    - direct run buildj
 "#);
 }
 
