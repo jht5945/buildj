@@ -293,7 +293,7 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
     }
 }
 
-fn read_build_json_object() -> Option<json::JsonValue> {
+fn read_build_json_object_from_env() -> Option<json::JsonValue> {
     if (*JAVA_VERSION).is_some() || (*BUILDER_VERSION).is_some() {
         let mut build_json_object = object!{};
         if (*JAVA_VERSION).is_some() {
@@ -320,6 +320,14 @@ fn read_build_json_object() -> Option<json::JsonValue> {
         }
         return Some(build_json_object);
     }
+    None
+}
+
+fn read_build_json_object() -> Option<json::JsonValue> {
+    match read_build_json_object_from_env() {
+        Some(o) => return Some(o),
+        None => (),
+    };
 
     let build_json = match find_build_json() {
         None => return None,
