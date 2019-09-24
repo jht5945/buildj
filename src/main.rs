@@ -318,6 +318,7 @@ fn read_build_json_object_from_env() -> Option<json::JsonValue> {
         if *VERBOSE {
             print_message(MessageType::DEBUG, &format!("Use env configed build.json: {}",  json::stringify(build_json_object.clone())));
         }
+        print_message(MessageType::OK, "Find build.json @ENV");
         Some(build_json_object)
     } else {
         None
