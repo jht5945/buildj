@@ -93,7 +93,7 @@ pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
     match get_and_extract_tool_package(&local_builder_home_base_dir, true, builder, version, true) {
         Err(err) => {
             print_message(MessageType::ERROR, &format!("Get builder: {} failed, version: {}, error: {}", builder, version, err));
-            return false;
+            false
         },
         Ok(_) => true,
     }
@@ -103,10 +103,10 @@ pub fn get_local_builder_home_sub(builder_name: BuilderName, local_builder_home_
     match get_local_builder_home_sub_first_sub_dir(local_builder_home_dir) {
         None => {
             print_message(MessageType::ERROR, &format!("Cannot find builder home in: {}", local_builder_home_dir));
-            return None;
+            None
         },
         Some(p) => {
-            return Some(BuilderDesc{name: builder_name, home: p, bin: None});
+            Some(BuilderDesc{name: builder_name, home: p, bin: None})
         },
     }
 }
@@ -131,9 +131,7 @@ pub fn get_extract_dir_name_by_file_name(file_name: &str) -> Option<String> {
         return None;
     }
     let mut dir_name = file_name;
-    if file_name.ends_with(".zip") {
-        dir_name = &file_name[..file_name.len()-4];
-    } else if file_name.ends_with(".tgz") {
+    if file_name.ends_with(".zip") || file_name.ends_with(".tgz") {
         dir_name = &file_name[..file_name.len()-4];
     } else if file_name.ends_with(".tar.gz") {
         dir_name = &file_name[..file_name.len()-7];
@@ -252,7 +250,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     let n = data["n"].to_string();
     let v = data["v"].to_string();
 
-    if extract_match &&  version != &v {
+    if extract_match &&  version != v {
         return Err(new_box_ioerror(&format!("Required version not match, {}: {} vs {}", name, version, &v)));
     }
 
@@ -272,7 +270,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {
         print_message(MessageType::OK, "Verify integrity success.");
     } else {
-        return Err(new_box_ioerror(&format!("Verify integrity failed!")));
+        return Err(new_box_ioerror("Verify integrity failed!"));
     }
 
     print_message(MessageType::INFO, &format!("Start extract file: {}", &target_file_name));

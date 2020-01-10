@@ -32,7 +32,7 @@ pub fn get_args_as_vec() -> Vec<String> {
     args_vec
 }
 
-pub fn is_buildin_args(args: &Vec<String>) -> bool {
+pub fn is_buildin_args(args: &[String]) -> bool {
     if args.len() <= 1 {
         false
     } else {

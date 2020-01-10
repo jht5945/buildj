@@ -94,10 +94,10 @@ fn do_with_buildin_arg_config(_first_arg: &str, args: &Vec<String>) {
     }
 }
 
-fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name: &str) {
+fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &str) {
     let builder_version = &first_arg[(builder_name.len() + 3)..];
     if builder_version == "" {
-        print_message(MessageType::ERROR, &format!("Builder version is not assigned!"));
+        print_message(MessageType::ERROR, "Builder version is not assigned!");
         return;
     }
     let mut has_java = false;
@@ -138,7 +138,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &Vec<String>, builder_name
 
     let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
-    let from_index = match has_java { true => 3, false => 2 };
+    let from_index = if has_java { 3 } else { 2 };
     for i in from_index..args.len() {
         cmd.arg(&args[i]);
     }
@@ -243,7 +243,7 @@ fn get_java_and_builder(build_json_object: &json::JsonValue) -> Option<(String, 
     Some((java_home, builder_desc))
 }
 
-fn get_final_args(args: &Vec<String>, build_json_object: &json::JsonValue) -> Option<Vec<String>> {
+fn get_final_args(args: &[String], build_json_object: &json::JsonValue) -> Option<Vec<String>> {
     let mut final_args:Vec<String> = vec![];
     if args.len() > 1 {
         let arg1 = &args[1];
@@ -326,10 +326,9 @@ fn read_build_json_object_from_env() -> Option<json::JsonValue> {
 }
 
 fn read_build_json_object() -> Option<json::JsonValue> {
-    match read_build_json_object_from_env() {
-        Some(o) => return Some(o),
-        None => (),
-    };
+    if let Some(o) = read_build_json_object_from_env() {
+        return Some(o);
+    }
 
     let build_json = match find_build_json() {
         None => return None,

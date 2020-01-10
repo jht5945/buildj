@@ -12,7 +12,7 @@ lazy_static! {
 }
 
 pub fn print_usage() {
-    print!(r#"
+    println!(r#"
 buildj :::                                          - print this message
 buildj :::help                                      - print this message
 buildj :::version                                   - print version
@@ -33,16 +33,14 @@ BUILDJ_VERBOSE=1 buildj                             - run buildj in verbose mode
 BUILDJ_NOAUTH=1 buildj                              - run buildj in no auth mode
 BUILDJ_JAVA_NAME=jdk-name buildj                    - assgin java name, e.g. adoptjdk-linux
 BUILDJ_AUTH_TOKEN=auth-token buildj                 - assign auth token
-BUILDJ_JAVA=1.8 BUILDJ_BUILDER=maven3.5.2 buildj    - direct run buildj
-"#);
+BUILDJ_JAVA=1.8 BUILDJ_BUILDER=maven3.5.2 buildj    - direct run buildj"#);
 }
 
 pub fn print_version() {
-  print!(r#"buildj {} - {}
+  println!(r#"buildj {} - {}
 Copyright (C) 2019 Hatter Jiang.
 License MIT <https://opensource.org/licenses/MIT>
 
-Written by Hatter Jiang
-"#, super::BUDERJ_VER, &super::GIT_HASH[0..7]);
+Written by Hatter Jiang"#, super::BUDERJ_VER, &super::GIT_HASH[0..7]);
 }
 

@@ -102,7 +102,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                         print_message(MessageType::DEBUG, &format!("Try match path: {}", p));
                     }
                     let mut path_name = p;
-                    if p.ends_with("/") {
+                    if p.ends_with('/') {
                         path_name = &path_name[..path_name.len() - 1]
                     }
                     let last_index_of_slash = path_name.rfind('/');
@@ -111,9 +111,8 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                         Some(i) => path_name = &path_name[i+1..],
                     };
                     let mut matched_path = "";
-                    if path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version) {
-                        matched_path = p;
-                    } else if path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version) {
+                    if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
+                        || (path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version)) {
                         matched_path = p;
                     }
                     if matched_path != "" {
