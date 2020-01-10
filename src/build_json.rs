@@ -40,13 +40,10 @@ pub fn get_archive_version(gid: &str, aid: &str) -> XResult<String> {
     }
 }
 
-pub fn create_build_json(args: &Vec<String>) {
-    match find_build_json_in_current() {
-        Some(_) => {
-            print_message(MessageType::ERROR, &format!("File exits: {}", BUILD_JSON));
-            return;
-        }, 
-        None => (), // OK
+pub fn create_build_json(args: &[String]) {
+    if find_build_json_in_current().is_some() {
+        print_message(MessageType::ERROR, &format!("File exits: {}", BUILD_JSON));
+        return;
     }
 
     let mut java_version = "";

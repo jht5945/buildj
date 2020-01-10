@@ -110,11 +110,12 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                         None => (),
                         Some(i) => path_name = &path_name[i+1..],
                     };
-                    let mut matched_path = "";
-                    if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
+                    let matched_path = if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
                         || (path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version)) {
-                        matched_path = p;
-                    }
+                        p
+                    } else {
+                        ""
+                    };
                     if matched_path != "" {
                         if *VERBOSE {
                             print_message(MessageType::DEBUG, &format!("Matched JDK path found: {}", matched_path));

@@ -39,10 +39,10 @@ const GIT_HASH: &str = env!("GIT_HASH");
 const BUILD_DATE: &str = env!("BUILD_DATE");
 
 
-fn do_with_buildin_arg_java(first_arg: &str, args: &Vec<String>) {
+fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
     let ver = &first_arg[7..];
     if ver == "" {
-        print_message(MessageType::ERROR, &format!("Java version is not assigned!"));
+        print_message(MessageType::ERROR, "Java version is not assigned!");
         return;
     }
     match get_java_home(ver) {
@@ -62,15 +62,15 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &Vec<String>) {
     };
 }
 
-fn do_with_buildin_arg_maven(first_arg: &str, args: &Vec<String>) {
+fn do_with_buildin_arg_maven(first_arg: &str, args: &[String]) {
     do_with_buildin_arg_builder(first_arg, args, "maven")
 }
 
-fn do_with_buildin_arg_gradle(first_arg: &str, args: &Vec<String>) {
+fn do_with_buildin_arg_gradle(first_arg: &str, args: &[String]) {
     do_with_buildin_arg_builder(first_arg, args, "gradle")
 }
 
-fn do_with_buildin_arg_config(_first_arg: &str, args: &Vec<String>) {
+fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
     if args.len() <= 2 {
         print_message(MessageType::ERROR, "No arguments, get or set.");
         return;
@@ -139,15 +139,15 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
     let from_index = if has_java { 3 } else { 2 };
-    for i in from_index..args.len() {
-        cmd.arg(&args[i]);
+    for arg in args.iter().skip(from_index) {
+        cmd.arg(&arg);
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
     });
 }
 
-fn do_with_buildin_arg_ddd(first_arg: &str, args: &Vec<String>) {
+fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
     let build_json_object = match read_build_json_object() {
         None => return,
         Some(object) => object,
@@ -167,11 +167,11 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &Vec<String>) {
         }
         cmd.arg(build_json_object_xrun[i].to_string());
     }
-    for i in 3..args.len() {
+    for arg in args.iter().skip(3) {
         if *VERBOSE {
-            cmd_args.push(args[i].to_string());
+            cmd_args.push(arg.to_string());
         }
-        cmd.arg(args[i].to_string());
+        cmd.arg(arg.to_string());
     }
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args));
@@ -181,14 +181,14 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &Vec<String>) {
     });
 }
 
-fn do_with_buildin_args(args: &Vec<String>) {
+fn do_with_buildin_args(args: &[String]) {
      let first_arg = args.get(1).unwrap();
     if first_arg == ":::" || first_arg == ":::help" {
         print_usage();
     } else if first_arg == ":::version" {
         print_version();
     } else if first_arg == ":::create" {
-        create_build_json(&args);
+        create_build_json(args);
     } else if first_arg == ":::config" {
         do_with_buildin_arg_config(first_arg, args);
     } else if first_arg.starts_with(":::java") {
@@ -269,8 +269,8 @@ fn get_final_args(args: &[String], build_json_object: &json::JsonValue) -> Optio
         }
     }
     if args.len() > 2 {
-        for i in 2..args.len() {
-            final_args.push(args[i].to_string());
+        for arg in args.iter().skip(2) {
+            final_args.push(arg.to_string());
         }
     }
     Some(final_args)
