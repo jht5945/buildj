@@ -72,11 +72,11 @@ pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &s
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
     let file_len = match f.metadata() {
-        Err(_) => -1i64,
+        Err(_) => -1_i64,
         Ok(meta_data) => meta_data.len() as i64,
     };
     let start = SystemTime::now();
-    let mut written = 0i64;
+    let mut written = 0_i64;
     loop {
         let len = match f.read(&mut buf) {
             Ok(0) => { println!(); return Ok(digest.result_str()); },

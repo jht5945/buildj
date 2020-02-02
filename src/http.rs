@@ -19,7 +19,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     }
     let mut response = reqwest::get(url)?;
     let header_content_length: i64 = match response.headers().get("content-length") {
-        None => -1,
+        None => -1_i64,
         Some(len_value) => len_value.to_str().unwrap().parse::<i64>().unwrap(),
     };
     if *VERBOSE {

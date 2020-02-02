@@ -116,7 +116,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                     } else {
                         ""
                     };
-                    if matched_path != "" {
+                    if !matched_path.is_empty() {
                         if *VERBOSE {
                             print_message(MessageType::DEBUG, &format!("Matched JDK path found: {}", matched_path));
                         }

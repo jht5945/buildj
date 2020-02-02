@@ -96,7 +96,7 @@ fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
 
 fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &str) {
     let builder_version = &first_arg[(builder_name.len() + 3)..];
-    if builder_version == "" {
+    if builder_version.is_empty() {
         print_message(MessageType::ERROR, "Builder version is not assigned!");
         return;
     }
@@ -105,7 +105,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     if args.len() > 2 && args[2].starts_with("--java") {
         has_java = true;
         let java_version = &args[2][6..];
-        if java_version != "" {
+        if !java_version.is_empty() {
             java_home = match get_java_home(java_version) {
                 None => {
                     print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));

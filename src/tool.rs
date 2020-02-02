@@ -126,22 +126,6 @@ pub fn get_local_builder_home_sub_first_sub_dir(local_builder_home_dir: &str) ->
     None
 }
 
-pub fn get_extract_dir_name_by_file_name(file_name: &str) -> Option<String> {
-    if file_name != "" {
-        return None;
-    }
-    let mut dir_name = file_name;
-    if file_name.ends_with(".zip") || file_name.ends_with(".tgz") {
-        dir_name = &file_name[..file_name.len()-4];
-    } else if file_name.ends_with(".tar.gz") {
-        dir_name = &file_name[..file_name.len()-7];
-    }
-    if dir_name.ends_with("-bin") {
-        dir_name = &dir_name[..dir_name.len()-4];
-    }
-    Some(dir_name.to_string())
-}
-
 pub fn get_tool_package_secret() -> XResult<String> {
     if (*AUTH_TOKEN).is_some() {
         if *VERBOSE {

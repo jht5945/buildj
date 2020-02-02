@@ -102,10 +102,10 @@ pub fn find_build_json_in_current() -> Option<String> {
 
 pub fn find_build_json_in_parents() -> Option<String> {
     let mut path = fs::canonicalize(".").ok()?;
-    let mut loop_count = 0usize;
+    let mut loop_count = 0_usize;
     loop {
-        loop_count += 1usize;
-        if loop_count > 100usize {
+        loop_count += 1_usize;
+        if loop_count > 100_usize {
             print_message(MessageType::ERROR, "Find build.json loop more than 100 loop!");
             return None;
         }
