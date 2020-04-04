@@ -125,9 +125,7 @@ pub fn find_build_json_in_parents() -> Option<String> {
 
 pub fn find_build_json() -> Option<String> {
     match find_build_json_in_current() {
-        Some(p) => {
-            Some(p)
-        },
+        Some(p) => Some(p),
         None => match find_build_json_in_parents() {
             Some(p) => {
                 print_message(MessageType::WARN, &format!("Cannot find {} in current dir, find: {}", BUILD_JSON, p));

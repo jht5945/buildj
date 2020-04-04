@@ -41,7 +41,7 @@ const BUILD_DATE: &str = env!("BUILD_DATE");
 
 fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
     let ver = &first_arg[7..];
-    if ver == "" {
+    if ver.is_empty() {
         print_message(MessageType::ERROR, "Java version is not assigned!");
         return;
     }

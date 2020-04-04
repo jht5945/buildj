@@ -71,10 +71,7 @@ pub fn calc_sha256(d: &[u8]) -> String {
 pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
-    let file_len = match f.metadata() {
-        Err(_) => -1_i64,
-        Ok(meta_data) => meta_data.len() as i64,
-    };
+    let file_len = f.metadata().map(|md| md.len() as i64).unwrap_or(-1_i64);
     let start = SystemTime::now();
     let mut written = 0_i64;
     loop {
@@ -130,10 +127,9 @@ pub fn extract_package_and_wait(dir: &str, file_name: &str) -> XResult<()> {
 }
 
 pub fn init_home_dir(home_sub_dir: &str) {
-    match get_user_home_dir(home_sub_dir) {
-        Err(_) => (),
-        Ok(user_home_dir) => init_dir(&user_home_dir),
-    };
+    if let Ok(user_home_dir) = get_user_home_dir(home_sub_dir) {
+        init_dir(&user_home_dir);
+    }
 }
 
 pub fn init_dir(dir: &str) {

@@ -9,6 +9,7 @@ use std::{
 
 use super::{
     rust_util::{
+        iff,
         util_os::*,
         util_msg::*,
     },
@@ -37,11 +38,7 @@ pub fn get_java_home(version: &str) -> Option<String> {
         Some(j) => Some(j),
         None => match get_local_java_home(version) {
             Some(j) => Some(j),
-            None => if get_cloud_java(version) {
-                get_local_java_home(version)
-            } else {
-                None
-            },
+            None => iff!(get_cloud_java(version), get_local_java_home(version), None),
         },
     }
 }
@@ -93,53 +90,46 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
     let local_java_home_base_dir = local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR).ok()?;
     let paths = fs::read_dir(Path::new(&local_java_home_base_dir)).ok()?;
     for path in paths {
-        match path {
-            Err(_) => (),
-            Ok(dir_entry) => match dir_entry.path().to_str() {
-                None => (),
-                Some(p) => {
+        if let Ok(dir_entry) = path {
+            if let Some(p)= dir_entry.path().to_str() {
+                if *VERBOSE {
+                    print_message(MessageType::DEBUG, &format!("Try match path: {}", p));
+                }
+                let mut path_name = p;
+                if p.ends_with('/') {
+                    path_name = &path_name[..path_name.len() - 1]
+                }
+                if let Some(i) = path_name.rfind('/') {
+                    path_name = &path_name[i+1..];
+                }
+                let matched_path_opt = if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
+                    || (path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version)) {
+                    Some(p)
+                } else {
+                    None
+                };
+                if let Some(matched_path) = matched_path_opt {
                     if *VERBOSE {
-                        print_message(MessageType::DEBUG, &format!("Try match path: {}", p));
+                        print_message(MessageType::DEBUG, &format!("Matched JDK path found: {}", matched_path));
                     }
-                    let mut path_name = p;
-                    if p.ends_with('/') {
-                        path_name = &path_name[..path_name.len() - 1]
-                    }
-                    let last_index_of_slash = path_name.rfind('/');
-                    match last_index_of_slash {
-                        None => (),
-                        Some(i) => path_name = &path_name[i+1..],
-                    };
-                    let matched_path = if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
-                        || (path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version)) {
-                        p
+                    if local_util::is_path_exists(matched_path, "Contents/Home") {
+                        return Some(format!("{}/{}", matched_path, "Contents/Home"));
                     } else {
-                        ""
-                    };
-                    if !matched_path.is_empty() {
-                        if *VERBOSE {
-                            print_message(MessageType::DEBUG, &format!("Matched JDK path found: {}", matched_path));
-                        }
-                        if local_util::is_path_exists(matched_path, "Contents/Home") {
-                            return Some(format!("{}/{}", matched_path, "Contents/Home"));
-                        } else {
-                            return Some(matched_path.to_string());
-                        }
+                        return Some(matched_path.to_string());
                     }
-                },
-            },
-        };
+                }
+            }
+        }
     }
     None
 }
 
 pub fn extract_jdk_and_wait(file_name: &str) {
-    match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
-        Err(_) => (),
-        Ok(local_java_home_base_dir) => local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
+    if let Ok(local_java_home_base_dir) = local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
+        local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
             print_message(MessageType::ERROR, &format!("Extract file: {}, failed: {}", file_name, err));
-        }),
-    };
+        });
+    }
 }
 
 pub fn get_env() -> HashMap<String, String> {

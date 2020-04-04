@@ -50,11 +50,9 @@ impl BuilderDesc {
     pub fn get_builder_bin(&self) -> String {
         match &self.bin {
             Some(b) => b.clone(),
-            None => {
-                match self.name {
-                    BuilderName::Maven => format!("{}/bin/mvn", self.home.clone()),
-                    BuilderName::Gradle => format!("{}/bin/gradle", self.home.clone()),
-                }
+            None => match self.name {
+                BuilderName::Maven => format!("{}/bin/mvn", self.home.clone()),
+                BuilderName::Gradle => format!("{}/bin/gradle", self.home.clone()),
             }
         }
     }
@@ -105,23 +103,18 @@ pub fn get_local_builder_home_sub(builder_name: BuilderName, local_builder_home_
             print_message(MessageType::ERROR, &format!("Cannot find builder home in: {}", local_builder_home_dir));
             None
         },
-        Some(p) => {
-            Some(BuilderDesc{name: builder_name, home: p, bin: None})
-        },
+        Some(p) => Some(BuilderDesc{name: builder_name, home: p, bin: None}),
     }
 }
 
 pub fn get_local_builder_home_sub_first_sub_dir(local_builder_home_dir: &str) -> Option<String> {
     let paths = fs::read_dir(Path::new(&local_builder_home_dir)).ok()?;
     for path in paths {
-        match path {
-            Err(_) => (),
-            Ok(p) => {
-                if p.path().is_dir() {
-                    return Some(p.path().to_str()?.to_string());
-                }
-            },
-        };
+        if let Ok(p) = path {
+            if p.path().is_dir() {
+                return Some(p.path().to_str()?.to_string());
+            }
+        }
     }
     None
 }
