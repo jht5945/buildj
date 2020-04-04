@@ -60,7 +60,7 @@ pub fn create_build_json(args: &[String]) {
             builder_version = &arg.as_str()[8..];
         }
     }
-    if java_version == "" || builder == "" || builder_version == "" {
+    if java_version.is_empty() || builder.is_empty() || builder_version.is_empty() {
         print_message(MessageType::ERROR, "Args java version, builder or builder version is not assigned or format error.");
         return;
     }
