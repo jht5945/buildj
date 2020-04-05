@@ -285,10 +285,9 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
             }
             let env_k = &env[0];
             let env_v = &env[1];
-            if env_k.is_null() || env_v.is_null() {
-                continue;
+            if let (Some(env_k_str), Some(env_v_str)) = (env_k.as_str(), env_v.as_str()) {
+                the_env.insert(env_k_str.to_owned(), env_v_str.to_owned());
             }
-            the_env.insert(env_k.as_str().unwrap().to_string(), env_v.as_str().unwrap().to_string());
         }
     }
 }
