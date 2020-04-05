@@ -4,6 +4,7 @@ use std::{
 };
 
 use rust_util::{
+    iff,
     XResult,
     new_box_ioerror,
     util_msg::{
@@ -80,12 +81,8 @@ pub fn create_build_json(args: &[String]) {
         },
     };
     match fs::write(BUILD_JSON, json::stringify_pretty(build_json_object, 4)) {
-        Ok(_) => {
-            print_message(MessageType::OK, &format!("Write file success: {}", BUILD_JSON));
-        },
-        Err(err) => {
-            print_message(MessageType::ERROR, &format!("Write file failed: {}, error message: {}", BUILD_JSON, err));
-        },
+        Ok(_) => print_message(MessageType::OK, &format!("Write file success: {}", BUILD_JSON)),
+        Err(err) => print_message(MessageType::ERROR, &format!("Write file failed: {}, error message: {}", BUILD_JSON, err)),
     };
 }
 
@@ -93,11 +90,7 @@ pub fn find_build_json_in_current() -> Option<String> {
     let path = fs::canonicalize(".").ok()?;
     let p_build_json = &format!("{}/{}", path.to_str()?, BUILD_JSON);
     let path_build_json = Path::new(p_build_json);
-    if path_build_json.exists() {
-        Some(p_build_json.to_string())
-    } else {
-        None
-    }
+    iff!(path_build_json.exists(), Some(p_build_json.to_string()), None)
 }
 
 pub fn find_build_json_in_parents() -> Option<String> {
