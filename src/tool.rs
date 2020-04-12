@@ -85,15 +85,13 @@ pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
         return false;
     }
     let local_builder_home_base_dir = match local_util::get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
-        Err(_) => return false,
-        Ok(o) => o,
+        Ok(o) => o, Err(_) => return false,
     };
     match get_and_extract_tool_package(&local_builder_home_base_dir, true, builder, version, true) {
-        Err(err) => {
+        Ok(_) => true, Err(err) => {
             print_message(MessageType::ERROR, &format!("Get builder: {} failed, version: {}, error: {}", builder, version, err));
             false
         },
-        Ok(_) => true,
     }
 }
 
@@ -180,11 +178,10 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
         None
     } else {
         match get_tool_package_secret() {
-            Err(err) => {
+            Ok(r) => Some(r), Err(err) => {
                 print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
                 None
             },
-            Ok(r) => Some(r),
         }
     };
     

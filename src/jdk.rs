@@ -58,8 +58,7 @@ pub fn get_cloud_java(version: &str) -> bool {
         Some(buildj_java_name) => vec![buildj_java_name.as_str()],
     };
     let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
-        Err(_) => return false,
-        Ok(o) => o,
+        Ok(o) => o, Err(_) => return false,
     };
     for cloud_java_name in cloud_java_names {
         if tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false).is_ok() {
@@ -112,10 +111,10 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                     if *VERBOSE {
                         print_message(MessageType::DEBUG, &format!("Matched JDK path found: {}", matched_path));
                     }
-                    if local_util::is_path_exists(matched_path, "Contents/Home") {
-                        return Some(format!("{}/{}", matched_path, "Contents/Home"));
+                    return if local_util::is_path_exists(matched_path, "Contents/Home") {
+                        Some(format!("{}/{}", matched_path, "Contents/Home"))
                     } else {
-                        return Some(matched_path.to_string());
+                        Some(matched_path.to_string())
                     }
                 }
             }

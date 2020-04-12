@@ -76,11 +76,11 @@ pub fn create_build_json(args: &[String]) {
                 format!("me.hatter:commons:{}", ver).as_str()
             ]
         },
-    };
+    }
     match fs::write(BUILD_JSON, json::stringify_pretty(build_json_object, 4)) {
         Ok(_) => print_message(MessageType::OK, &format!("Write file success: {}", BUILD_JSON)),
         Err(err) => print_message(MessageType::ERROR, &format!("Write file failed: {}, error message: {}", BUILD_JSON, err)),
-    };
+    }
 }
 
 pub fn find_build_json_in_current() -> Option<String> {

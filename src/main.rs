@@ -107,20 +107,18 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
         let java_version = &args[2][6..];
         if !java_version.is_empty() {
             java_home = match get_java_home(java_version) {
-                None => {
+                Some(h) => h, None => {
                     print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
                     return;
                 },
-                Some(h) => h,
             };
         }
     }
     let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
-        None => {
+        Some(h) => h, None => {
             print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
             return;
         },
-        Some(h) => h,
     };
     if has_java {
         print_message(MessageType::OK, &format!("JAVA_HOME    = {}", java_home));
@@ -149,8 +147,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
 
 fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
     let build_json_object = match read_build_json_object() {
-        None => return,
-        Some(object) => object,
+        Some(object) => object, None => return,
     };
     let build_json_object_xrun = &build_json_object["xRuns"][&first_arg[3..]];
     if build_json_object_xrun.is_null() {
@@ -227,18 +224,16 @@ fn get_java_and_builder(build_json_object: &json::JsonValue) -> Option<(String, 
     }
 
     let java_home = match get_java_home(java_version) {
-        None => {
+        Some(h) => h, None => {
             print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
             return None;
         },
-        Some(h) => h,
     };
     let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
-        None => {
+        Some(h) => h, None => {
             print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
             return None;
         },
-        Some(h) => h,
     };
     Some((java_home, builder_desc))
 }
@@ -330,24 +325,21 @@ fn read_build_json_object() -> Option<json::JsonValue> {
     }
 
     let build_json = match find_build_json() {
-        None => return None,
-        Some(p) => p,
+        Some(p) => p, None => return None,
     };
 
     print_message(MessageType::OK, &format!("Find {} @ {}", BUILD_JSON, build_json));
     let build_json_content = match fs::read_to_string(build_json) {
-        Err(err) => {
+        Ok(content) => content, Err(err) => {
             print_message(MessageType::ERROR, &format!("Read {} failed: {}", BUILD_JSON, err));
             return None;
         },
-        Ok(content) => content,
     };
     match json::parse(&build_json_content) {
-        Err(err) => {
+        Ok(object) => Some(object), Err(err) => {
             print_message(MessageType::ERROR, &format!("Parse JSON failed: {}", err));
             None
         },
-        Ok(object) => Some(object),
     }
 }
 
@@ -377,8 +369,7 @@ fn main() {
     local_util::init_home_dir(jdk::LOCAL_JAVA_HOME_BASE_DIR);
 
     let build_json_object = match read_build_json_object() {
-        None => return,
-        Some(object) => object,
+        Some(object) => object, None => return,
     };
 
     let (java_home, builder_desc) = match get_java_and_builder(&build_json_object) {
@@ -399,8 +390,7 @@ fn main() {
     cmd.envs(&new_env);
 
     let final_args = match get_final_args(&args, &build_json_object) {
-        None => return,
-        Some(fa) => fa,
+        Some(fa) => fa, None => return,
     };
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Final arguments: {:?}", &final_args));
