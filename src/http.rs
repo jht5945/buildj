@@ -1,6 +1,4 @@
-use std::{
-    fs::File,
-};
+use std::fs::File;
 
 use rust_util::{
     util_io::copy_io,

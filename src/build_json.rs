@@ -1,7 +1,4 @@
-use std::{
-    fs,
-    path::Path,
-};
+use std::{ fs, path::Path, };
 
 use rust_util::{
     iff,
