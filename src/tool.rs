@@ -12,7 +12,7 @@ use rust_util::{
     },
 };
 use super::{
-    http,
+    http::{ download_url, get_url_content, },
     local_util::{self, *},
     misc::*,
 };
@@ -200,7 +200,7 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     url.push_str(&urlencoding::encode(name));
     url.push_str("&ver=");
     url.push_str(&urlencoding::encode(version));
-    Ok(http::get_url(url.as_str())?)
+    Ok(get_url_content(url.as_str())?)
 }
 
 pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &str, version: &str, extract_match: bool) -> XResult<bool> {
@@ -236,7 +236,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     let target_file_name = format!("{}/{}", &target_base_dir, name.to_string());
 
     print_message(MessageType::INFO, &format!("Start download: {} -> {}", &url.to_string(), &target_file_name));
-    http::download_url(&url.to_string(), &mut File::create(&target_file_name)?)?;
+    download_url(&url.to_string(), &mut File::create(&target_file_name)?)?;
 
     print_message(MessageType::INFO, &format!("Start verify integrity: {} ...", &target_file_name));
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {

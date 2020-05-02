@@ -10,7 +10,7 @@ use rust_util::{
     }
 };
 
-use super::http::get_url;
+use super::http::get_url_content;
 use super::misc::VERBOSE;
 
 pub const BUILD_JSON: &str = "build.json";
@@ -21,12 +21,13 @@ pub fn get_archive_version(gid: &str, aid: &str) -> XResult<String> {
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Start get archive info: {}:{}", gid, aid));
     }
-    let mut url = String::from(GET_ARCHIVER_VERSION_URL);
+    let mut url = String::with_capacity(1024);
+    url.push_str(GET_ARCHIVER_VERSION_URL);
     url.push_str("?gid=");
     url.push_str(&urlencoding::encode(gid));
     url.push_str("&aid=");
     url.push_str(&urlencoding::encode(aid));
-    let version_result = get_url(url.as_str())?;
+    let version_result = get_url_content(url.as_str())?;
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Get archive result: {}", version_result));
     }

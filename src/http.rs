@@ -40,7 +40,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     Ok(())
 }
 
-pub fn get_url(url: &str) -> XResult<String> {
+pub fn get_url_content(url: &str) -> XResult<String> {
     if *VERBOSE {
         print_message(MessageType::DEBUG, &format!("Get URL: {}", url));
     }
