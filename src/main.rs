@@ -24,6 +24,9 @@ use std::{
 use rust_util::{
     iff,
     util_msg::{
+        print_ok,
+        print_warn,
+        print_error,
         print_message,
         MessageType,
     },
@@ -43,13 +46,13 @@ const BUILD_DATE: &str = env!("BUILD_DATE");
 fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
     let ver = &first_arg[7..];
     if ver.is_empty() {
-        print_message(MessageType::ERROR, "Java version is not assigned!");
+        print_error("Java version is not assigned!");
         return;
     }
     match get_java_home(ver) {
-        None => print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", ver)),
+        None => print_error(&format!("Assigned java version not found: {}", ver)),
         Some(java_home) => {
-            print_message(MessageType::OK, &format!("Find java home: {}", java_home));
+            print_ok(&format!("Find java home: {}", java_home));
             let java_bin = &format!("{}/bin/java", java_home);
             let mut cmd = Command::new(java_bin);
             cmd.envs(&get_env_with_java_home(&java_home));
@@ -57,7 +60,7 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
                 cmd.args(&args[2..]);
             }
             run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
-                print_message(MessageType::ERROR, &format!("Exec java failed: {}", err));
+                print_error(&format!("Exec java failed: {}", err));
             });
         },
     };
@@ -73,21 +76,21 @@ fn do_with_buildin_arg_gradle(first_arg: &str, args: &[String]) {
 
 fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
     if args.len() <= 2 {
-        print_message(MessageType::ERROR, "No arguments, get or set.");
+        print_error("No arguments, get or set.");
         return;
     }
     match args[2].as_str() {
         "get" => match get_tool_package_secret() {
-            Err(_) => print_message(MessageType::WARN, "No config found."),
-            Ok(secret) => print_message(MessageType::OK, &format!("Config secret: {}", secret)),
+            Err(_) => print_warn("No config found."),
+            Ok(secret) => print_ok(&format!("Config secret: {}", secret)),
         },
         "set" => {
             if args.len() < 4 {
-                print_message(MessageType::ERROR, "Need secret for set, :::config set <secret>");
+                print_error("Need secret for set, :::config set <secret>");
             } else {
                 match set_tool_package_secret(&args[3]) {
                     Err(err) => print_message(MessageType::ERROR, &format!("Config secret failed: {}", err)),
-                    Ok(_) => print_message(MessageType::OK, "Config secret success."),
+                    Ok(_) => print_ok("Config secret success."),
                 }
             }
         },
