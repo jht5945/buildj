@@ -85,9 +85,9 @@ pub fn create_build_json(args: &[String]) {
 
 pub fn find_build_json_in_current() -> Option<String> {
     let path = fs::canonicalize(".").ok()?;
-    let p_build_json = &format!("{}/{}", path.to_str()?, BUILD_JSON);
-    let path_build_json = Path::new(p_build_json);
-    iff!(path_build_json.exists(), Some(p_build_json.to_string()), None)
+    let p_build_json = format!("{}/{}", path.to_str()?, BUILD_JSON);
+    let path_build_json = Path::new(&p_build_json);
+    iff!(path_build_json.exists(), Some(p_build_json), None)
 }
 
 pub fn find_build_json_in_parents() -> Option<String> {
@@ -104,10 +104,10 @@ pub fn find_build_json_in_parents() -> Option<String> {
         if p == "/" {
             return None;
         }
-        let p_build_json = &format!("{}/{}", p, BUILD_JSON);
-        let path_build_json = Path::new(p_build_json);
+        let p_build_json = format!("{}/{}", p, BUILD_JSON);
+        let path_build_json = Path::new(&p_build_json);
         if path_build_json.exists() {
-            return Some(p_build_json.to_string());
+            return Some(p_build_json);
         }
         path = path.parent()?.to_path_buf();
     }

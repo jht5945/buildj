@@ -38,7 +38,7 @@ BUILDJ_JAVA=1.8 BUILDJ_BUILDER=maven3.5.2 buildj    - direct run buildj"#);
 
 pub fn print_version() {
   println!(r#"buildj {} - {}
-Copyright (C) 2019 Hatter Jiang.
+Copyright (C) 2019-2020 Hatter Jiang.
 License MIT <https://opensource.org/licenses/MIT>
 
 Written by Hatter Jiang"#, super::BUDERJ_VER, &super::GIT_HASH[0..7]);

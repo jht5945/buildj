@@ -22,6 +22,7 @@ use std::{
 };
 
 use rust_util::{
+    iff,
     util_msg::{
         print_message,
         MessageType,
@@ -136,7 +137,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
 
     let mut cmd = Command::new(builder_desc.get_builder_bin());
     cmd.envs(&new_env);
-    let from_index = if has_java { 3 } else { 2 };
+    let from_index = iff!(has_java, 3, 2);
     for arg in args.iter().skip(from_index) {
         cmd.arg(&arg);
     }
