@@ -89,19 +89,19 @@ fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
                 print_error("Need secret for set, :::config set <secret>");
             } else {
                 match set_tool_package_secret(&args[3]) {
-                    Err(err) => print_message(MessageType::ERROR, &format!("Config secret failed: {}", err)),
+                    Err(err) => print_error(&format!("Config secret failed: {}", err)),
                     Ok(_) => print_ok("Config secret success."),
                 }
             }
         },
-        arg => print_message(MessageType::ERROR, &format!("Unknown argument: {}", arg))
+        arg => print_error(&format!("Unknown argument: {}", arg))
     }
 }
 
 fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &str) {
     let builder_version = &first_arg[(builder_name.len() + 3)..];
     if builder_version.is_empty() {
-        print_message(MessageType::ERROR, "Builder version is not assigned!");
+        print_error("Builder version is not assigned!");
         return;
     }
     let mut has_java = false;
@@ -112,7 +112,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
         if !java_version.is_empty() {
             java_home = match get_java_home(java_version) {
                 Some(h) => h, None => {
-                    print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
+                    print_error(&format!("Assigned java version not found: {}", java_version));
                     return;
                 },
             };
