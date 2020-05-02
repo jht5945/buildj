@@ -126,11 +126,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     }
     print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
 
-    let mut new_env = if has_java {
-        get_env_with_java_home(&java_home)
-    } else {
-        get_env()
-    };
+    let mut new_env = iff!(has_java, get_env_with_java_home(&java_home), get_env());
     for builder_home_name in builder_desc.get_builder_home_name() {
         new_env.insert(builder_home_name, builder_desc.home.clone());
     }

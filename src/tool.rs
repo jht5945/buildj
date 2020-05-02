@@ -2,18 +2,17 @@ use std::{
     fs::{self, File},
     path::Path,
 };
-
+use rust_util::{
+    XResult,
+    new_box_ioerror,
+    util_os::is_macos_or_linux,
+    util_msg::{
+        print_message,
+        MessageType,
+    },
+};
 use super::{
     http,
-    rust_util::{
-        XResult,
-        new_box_ioerror,
-        util_os::is_macos_or_linux,
-        util_msg::{
-            print_message,
-            MessageType,
-        },
-    },
     local_util::{self, *},
     misc::*,
 };
@@ -60,8 +59,7 @@ impl BuilderDesc {
 
 pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
     let local_builder_home_base_dir = match get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
-        Err(_) => return None,
-        Ok(o) => o,
+        Ok(o) => o, Err(_) => return None,
     };
     let builder_name = match builder {
         "maven" => BuilderName::Maven,
@@ -185,7 +183,7 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
         }
     };
     
-    let mut url = String::new();
+    let mut url = String::with_capacity(1024);
     match secret {
         None => {
             url.push_str(TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH);
@@ -228,7 +226,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
         return Err(new_box_ioerror(&format!("Required version not match, {}: {} vs {}", name, version, &v)));
     }
 
-    let mut target_base_dir = String::new(); 
+    let mut target_base_dir = String::with_capacity(512);
     target_base_dir.push_str(base_dir);
     if dir_with_name {
         target_base_dir.push_str("/");
