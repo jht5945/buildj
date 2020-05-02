@@ -25,11 +25,12 @@ use crypto::{
 };
 
 pub fn get_args_as_vec() -> Vec<String> {
-    let mut args_vec:Vec<String> = vec![];
-    for arg in env::args() {
-        args_vec.push(arg);
-    }
-    args_vec
+    // let mut args_vec:Vec<String> = vec![];
+    // for arg in env::args() {
+    //     args_vec.push(arg);
+    // }
+    // args_vec
+    env::args().collect::<Vec<String>>()
 }
 
 pub fn is_buildin_args(args: &[String]) -> bool {
