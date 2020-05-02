@@ -27,6 +27,7 @@ use rust_util::{
         print_ok,
         print_warn,
         print_error,
+        print_debug,
         print_message,
         MessageType,
     },
@@ -120,14 +121,14 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     }
     let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
         Some(h) => h, None => {
-            print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
+            print_error(&format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
             return;
         },
     };
     if has_java {
-        print_message(MessageType::OK, &format!("JAVA_HOME    = {}", java_home));
+        print_ok(&format!("JAVA_HOME    = {}", java_home));
     }
-    print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
+    print_ok(&format!("BUILDER_HOME = {}", &builder_desc.home));
 
     let mut new_env = iff!(has_java, get_env_with_java_home(&java_home), get_env());
     for builder_home_name in builder_desc.get_builder_home_name() {
@@ -141,7 +142,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
         cmd.arg(&arg);
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
-        print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
+        print_error(&format!("Run build command failed: {}", err));
     });
 }
 
@@ -151,7 +152,7 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
     };
     let build_json_object_xrun = &build_json_object["xRuns"][&first_arg[3..]];
     if build_json_object_xrun.is_null() {
-        print_message(MessageType::ERROR, &format!("Cannot find build.json#xRuns#{}", &first_arg[3..]));
+        print_error(&format!("Cannot find build.json#xRuns#{}", &first_arg[3..]));
         return;
     }
     let cmd_name = build_json_object_xrun[0].to_string();
@@ -171,10 +172,10 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
         cmd.arg(arg.to_string());
     }
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args));
+        print_debug(&format!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args));
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
-        print_message(MessageType::ERROR, &format!("Run xRun command failed: {}", err));
+        print_error(&format!("Run xRun command failed: {}", err));
     });
 }
 
@@ -197,7 +198,7 @@ fn do_with_buildin_args(args: &[String]) {
     } else if first_arg.starts_with("...") {
         do_with_buildin_arg_ddd(first_arg, args);
     } else {
-        print_message(MessageType::ERROR, &format!("Unknown args: {:?}", &args));
+        print_error(&format!("Unknown args: {:?}", &args));
     }
 }
 
@@ -207,31 +208,31 @@ fn get_java_and_builder(build_json_object: &json::JsonValue) -> Option<(String, 
     let builder_version_j = &build_json_object["builder"]["version"];
 
     if java_version_j.is_null() {
-        print_message(MessageType::ERROR, "Java version is not assigned!");
+        print_error("Java version is not assigned!");
         return None;
     }
     if builder_name_j.is_null() || builder_version_j.is_null() {
-        print_message(MessageType::ERROR, "Builder name or version is not assigned!");
+        print_error("Builder name or version is not assigned!");
         return None;
     }
     let java_version = java_version_j.as_str().unwrap();
     let builder_name = builder_name_j.as_str().unwrap();
     let builder_version = builder_version_j.as_str().unwrap();
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Java version: {}", java_version));
-        print_message(MessageType::DEBUG, &format!("Builder name: {}", builder_name));
-        print_message(MessageType::DEBUG, &format!("Builder version: {}", builder_version));
+        print_debug(&format!("Java version: {}", java_version));
+        print_debug(&format!("Builder name: {}", builder_name));
+        print_debug(&format!("Builder version: {}", builder_version));
     }
 
     let java_home = match get_java_home(java_version) {
         Some(h) => h, None => {
-            print_message(MessageType::ERROR, &format!("Assigned java version not found: {}", java_version));
+            print_error(&format!("Assigned java version not found: {}", java_version));
             return None;
         },
     };
     let builder_desc = match tool::get_builder_home(builder_name, builder_version) {
         Some(h) => h, None => {
-            print_message(MessageType::ERROR, &format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
+            print_error(&format!("Assigned builder: {}, version: {} not found.", builder_name, builder_version));
             return None;
         },
     };
@@ -246,9 +247,9 @@ fn get_final_args(args: &[String], build_json_object: &json::JsonValue) -> Optio
             let a_cmd = &arg1[2..];
             let a_cmd_j = &build_json_object["xArgs"][a_cmd];
             if a_cmd_j.is_null() {
-                print_message(MessageType::WARN, &format!("xArgs argument not found: {}", a_cmd));
+                print_warn(&format!("xArgs argument not found: {}", a_cmd));
                 if args.len() == 2 {
-                    print_message(MessageType::ERROR, "Only one xArgs argument, exit.");
+                    print_error("Only one xArgs argument, exit.");
                     return None;
                 }
                 final_args.push(arg1.to_string());
@@ -276,7 +277,7 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
     if ! envs_j.is_null() {
         for env in envs_j.members() {
             if *VERBOSE {
-                print_message(MessageType::DEBUG, &format!("Env: {}", env));
+                print_debug(&format!("Env: {}", env));
             }
             let env_k = &env[0];
             let env_v = &env[1];
@@ -306,13 +307,13 @@ fn read_build_json_object_from_env() -> Option<json::JsonValue> {
                     "version" => builder_version[5..],
                 };
             } else {
-                print_message(MessageType::WARN, &format!("Unknown builder: {}", builder_version));
+                print_warn(&format!("Unknown builder: {}", builder_version));
             }
         }
         if *VERBOSE {
-            print_message(MessageType::DEBUG, &format!("Use env configed build.json: {}",  json::stringify(build_json_object.clone())));
+            print_debug(&format!("Use env configed build.json: {}",  json::stringify(build_json_object.clone())));
         }
-        print_message(MessageType::OK, "Find build.json @ENV");
+        print_ok("Find build.json @ENV");
         Some(build_json_object)
     } else {
         None
