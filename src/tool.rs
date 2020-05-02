@@ -7,8 +7,11 @@ use rust_util::{
     new_box_ioerror,
     util_os::is_macos_or_linux,
     util_msg::{
-        print_message,
-        MessageType,
+        print_ok,
+        print_info,
+        print_warn,
+        print_error,
+        print_debug,
     },
 };
 use super::{
@@ -65,7 +68,7 @@ pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
         "maven" => BuilderName::Maven,
         "gradle" => BuilderName::Gradle,
         _ => {
-            print_message(MessageType::ERROR, &format!("Unknown builder: {}", builder));
+            print_error(&format!("Unknown builder: {}", builder));
             return None;
         },
     };
@@ -87,7 +90,7 @@ pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
     };
     match get_and_extract_tool_package(&local_builder_home_base_dir, true, builder, version, true) {
         Ok(_) => true, Err(err) => {
-            print_message(MessageType::ERROR, &format!("Get builder: {} failed, version: {}, error: {}", builder, version, err));
+            print_error(&format!("Get builder: {} failed, version: {}, error: {}", builder, version, err));
             false
         },
     }
@@ -96,7 +99,7 @@ pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
 pub fn get_local_builder_home_sub(builder_name: BuilderName, local_builder_home_dir: &str) -> Option<BuilderDesc> {
     match get_local_builder_home_sub_first_sub_dir(local_builder_home_dir) {
         None => {
-            print_message(MessageType::ERROR, &format!("Cannot find builder home in: {}", local_builder_home_dir));
+            print_error(&format!("Cannot find builder home in: {}", local_builder_home_dir));
             None
         },
         Some(p) => Some(BuilderDesc{name: builder_name, home: p, bin: None}),
@@ -118,7 +121,7 @@ pub fn get_local_builder_home_sub_first_sub_dir(local_builder_home_dir: &str) ->
 pub fn get_tool_package_secret() -> XResult<String> {
     if (*AUTH_TOKEN).is_some() {
         if *VERBOSE {
-            print_message(MessageType::DEBUG, "Use auth token from env 'BUILDJ_AUTH_TOKEN'");
+            print_debug("Use auth token from env 'BUILDJ_AUTH_TOKEN'");
         }
         return Ok((*AUTH_TOKEN).as_ref().unwrap().clone());
     }
@@ -172,12 +175,12 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
 
 pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     let secret: Option<String> = if *NOAUTH {
-        print_message(MessageType::WARN, "Running in no auth mode!");
+        print_warn("Running in no auth mode!");
         None
     } else {
         match get_tool_package_secret() {
             Ok(r) => Some(r), Err(err) => {
-                print_message(MessageType::WARN, &format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
+                print_warn(&format!("Get package detail secret failed: {}, from file: ~/{}", err, STANDARD_CONFIG_JSON));
                 None
             },
         }
@@ -207,7 +210,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     let tool_package_detail = get_tool_package_detail(name, version)?;
     let build_json_object = json::parse(&tool_package_detail)?;
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Get tool {}:{}, result JSON: {}", name, version, json::stringify_pretty(build_json_object.clone(), 4)));
+        print_debug(&format!("Get tool {}:{}, result JSON: {}", name, version, json::stringify_pretty(build_json_object.clone(), 4)));
     }
     if build_json_object["status"] != 200 {
         return Err(new_box_ioerror(&format!("Error in get tool package detail: {}", build_json_object["message"])));
@@ -235,17 +238,17 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     init_dir(&target_base_dir);
     let target_file_name = format!("{}/{}", &target_base_dir, name.to_string());
 
-    print_message(MessageType::INFO, &format!("Start download: {} -> {}", &url.to_string(), &target_file_name));
+    print_info(&format!("Start download: {} -> {}", &url.to_string(), &target_file_name));
     download_url(&url.to_string(), &mut File::create(&target_file_name)?)?;
 
-    print_message(MessageType::INFO, &format!("Start verify integrity: {} ...", &target_file_name));
+    print_info(&format!("Start verify integrity: {} ...", &target_file_name));
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {
-        print_message(MessageType::OK, "Verify integrity success.");
+        print_ok("Verify integrity success.");
     } else {
         return Err(new_box_ioerror("Verify integrity failed!"));
     }
 
-    print_message(MessageType::INFO, &format!("Start extract file: {}", &target_file_name));
+    print_info(&format!("Start extract file: {}", &target_file_name));
     local_util::extract_package_and_wait(&target_base_dir, &name.to_string())?;
 
     Ok(true)
