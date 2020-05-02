@@ -25,11 +25,10 @@ use rust_util::{
     iff,
     util_msg::{
         print_ok,
+        print_info,
         print_warn,
         print_error,
         print_debug,
-        print_message,
-        MessageType,
     },
     util_cmd::run_command_and_wait,
 };
@@ -329,16 +328,16 @@ fn read_build_json_object() -> Option<json::JsonValue> {
         Some(p) => p, None => return None,
     };
 
-    print_message(MessageType::OK, &format!("Find {} @ {}", BUILD_JSON, build_json));
+    print_ok(&format!("Find {} @ {}", BUILD_JSON, build_json));
     let build_json_content = match fs::read_to_string(build_json) {
         Ok(content) => content, Err(err) => {
-            print_message(MessageType::ERROR, &format!("Read {} failed: {}", BUILD_JSON, err));
+            print_error(&format!("Read {} failed: {}", BUILD_JSON, err));
             return None;
         },
     };
     match json::parse(&build_json_content) {
         Ok(object) => Some(object), Err(err) => {
-            print_message(MessageType::ERROR, &format!("Parse JSON failed: {}", err));
+            print_error(&format!("Parse JSON failed: {}", err));
             None
         },
     }
@@ -346,26 +345,26 @@ fn read_build_json_object() -> Option<json::JsonValue> {
 
 
 fn main() {
-    print_message(MessageType::INFO, &format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
+    print_info(&format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
 
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Full GIT_HASH: {}", GIT_HASH));
-        print_message(MessageType::DEBUG, &format!("Build date: {}", BUILD_DATE));
+        print_debug(&format!("Full GIT_HASH: {}", GIT_HASH));
+        print_debug(&format!("Build date: {}", BUILD_DATE));
     }
 
     let args = local_util::get_args_as_vec();
-    print_message(MessageType::INFO, &format!("Arguments: {:?}", args));
+    print_info(&format!("Arguments: {:?}", args));
 
     if (! *NOBUILDIN) && local_util::is_buildin_args(&args) {
         do_with_buildin_args(&args);
         return;
     }
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Init home dir: {}", tool::LOCAL_BUILDER_HOME_BASE_DIR));
+        print_debug(&format!("Init home dir: {}", tool::LOCAL_BUILDER_HOME_BASE_DIR));
     }
     local_util::init_home_dir(tool::LOCAL_BUILDER_HOME_BASE_DIR);
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Init home dir: {}", jdk::LOCAL_JAVA_HOME_BASE_DIR));
+        print_debug(&format!("Init home dir: {}", jdk::LOCAL_JAVA_HOME_BASE_DIR));
     }
     local_util::init_home_dir(jdk::LOCAL_JAVA_HOME_BASE_DIR);
 
@@ -378,8 +377,8 @@ fn main() {
         Some((java_home, builder_desc)) => (java_home, builder_desc),
     };
    
-    print_message(MessageType::OK, &format!("JAVA_HOME    = {}", java_home));
-    print_message(MessageType::OK, &format!("BUILDER_HOME = {}", &builder_desc.home));
+    print_ok(&format!("JAVA_HOME    = {}", java_home));
+    print_ok(&format!("BUILDER_HOME = {}", &builder_desc.home));
 
     let mut new_env = get_env_with_java_home(&java_home);
     for builder_home_name in builder_desc.get_builder_home_name() {
@@ -394,19 +393,19 @@ fn main() {
         Some(fa) => fa, None => return,
     };
     if *VERBOSE {
-        print_message(MessageType::DEBUG, &format!("Final arguments: {:?}", &final_args));
+        print_debug(&format!("Final arguments: {:?}", &final_args));
     }
     for f_arg in final_args {
         cmd.arg(f_arg);
     }
     if *VERBOSE {
-        print_message(MessageType::DEBUG, "-----BEGIN ENVIRONMENT VARIABLES-----");
+        print_debug("-----BEGIN ENVIRONMENT VARIABLES-----");
         for (k, v) in new_env {
-            print_message(MessageType::DEBUG, &format!("{}={}", k, v));
+            print_debug(&format!("{}={}", k, v));
         }
-        print_message(MessageType::DEBUG, "-----END ENVIRONMENT VARIABLES-----");
+        print_debug("-----END ENVIRONMENT VARIABLES-----");
     }
     run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
-        print_message(MessageType::ERROR, &format!("Run build command failed: {}", err));
+        print_error(&format!("Run build command failed: {}", err));
     });
 }
