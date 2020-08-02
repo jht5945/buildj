@@ -166,25 +166,17 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
 }
 
 fn do_with_buildin_args(args: &[String]) {
-     let first_arg = args.get(1).unwrap();
-    if first_arg == ":::" || first_arg == ":::help" {
-        print_usage();
-    } else if first_arg == ":::version" {
-        print_version();
-    } else if first_arg == ":::create" {
-        create_build_json(args);
-    } else if first_arg == ":::config" {
-        do_with_buildin_arg_config(first_arg, args);
-    } else if first_arg.starts_with(":::java") {
-        do_with_buildin_arg_java(first_arg, args);
-    } else if first_arg.starts_with(":::maven") {
-        do_with_buildin_arg_maven(first_arg, args);
-    } else if first_arg.starts_with(":::gradle") {
-        do_with_buildin_arg_gradle(first_arg, args);
-    } else if first_arg.starts_with("...") {
-        do_with_buildin_arg_ddd(first_arg, args);
-    } else {
-        failure!("Unknown args: {:?}", &args);
+    let first_arg = args.get(1).unwrap();
+    match first_arg.as_str() {
+        ":::" | ":::help" => print_usage(),
+        ":::version"      => print_version(),
+        ":::create"       => create_build_json(args),
+        ":::config"       => do_with_buildin_arg_config(first_arg, args),
+        a if a.starts_with(":::java")   => do_with_buildin_arg_java  (a, args),
+        a if a.starts_with(":::maven")  => do_with_buildin_arg_maven (a, args),
+        a if a.starts_with(":::gradle") => do_with_buildin_arg_gradle(a, args),
+        a if a.starts_with("...")       => do_with_buildin_arg_ddd   (a, args),
+        _ => failure!("Unknown args: {:?}", &args),
     }
 }
 
