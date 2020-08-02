@@ -1,13 +1,8 @@
-use std::{ fs, path::Path, };
+use std::{ fs, path::Path };
+use rust_util::{ XResult, new_box_ioerror };
 
-use rust_util::{
-    iff,
-    XResult,
-    new_box_ioerror,
-};
-
-use super::http::get_url_content;
-use super::misc::VERBOSE;
+use crate::http::get_url_content;
+use crate::misc::VERBOSE;
 
 pub const BUILD_JSON: &str = "build.json";
 

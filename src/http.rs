@@ -1,11 +1,7 @@
 use std::fs::File;
+use rust_util::{ XResult, util_io::copy_io };
 
-use rust_util::{
-    XResult,
-    util_io::copy_io,
-};
-
-use super::misc::VERBOSE;
+use crate::misc::VERBOSE;
 
 pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     if *VERBOSE {

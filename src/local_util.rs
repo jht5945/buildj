@@ -6,18 +6,16 @@ use std::{
     process::Command,
     time::SystemTime,
 };
-
 use rust_util::{
     XResult,
     new_box_ioerror,
     util_io::*,
 };
-
 use crypto::{
     digest::Digest,
     md5::Md5,
     sha1::Sha1,
-    sha2::{Sha256, Sha512},
+    sha2::{ Sha256, Sha512 },
 };
 
 pub fn get_args_as_vec() -> Vec<String> {

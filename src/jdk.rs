@@ -7,11 +7,7 @@ use std::{
     process::Command,
 };
 use rust_util::util_os::*;
-use super::{
-    local_util,
-    tool,
-    misc::*,
-};
+use crate::{ local_util, tool, misc::* };
 
 const PATH: &str = "PATH";
 const JAVA_HOME: &str = "JAVA_HOME";

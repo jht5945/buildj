@@ -24,9 +24,9 @@ use jdk::*;
 use build_json::*;
 use misc::*;
 
-const BUILDJ: &str = "buildj";
+const BUILDJ:     &str = "buildj";
 const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
-const GIT_HASH: &str = env!("GIT_HASH");
+const GIT_HASH:   &str = env!("GIT_HASH");
 const BUILD_DATE: &str = env!("BUILD_DATE");
 
 

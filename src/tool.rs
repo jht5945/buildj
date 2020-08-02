@@ -1,5 +1,5 @@
 use std::{
-    fs::{self, File},
+    fs::{ self, File },
     path::Path,
 };
 use rust_util::{
@@ -7,9 +7,9 @@ use rust_util::{
     new_box_ioerror,
     util_os::is_macos_or_linux,
 };
-use super::{
-    http::{ download_url, get_url_content, },
-    local_util::{self, *},
+use crate::{
+    http::{ download_url, get_url_content },
+    local_util::{ self, * },
     misc::*,
 };
 
