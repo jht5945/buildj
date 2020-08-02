@@ -351,8 +351,7 @@ fn main() {
     };
 
     let (java_home, builder_desc) = match get_java_and_builder(&build_json_object) {
-        None => return,
-        Some((java_home, builder_desc)) => (java_home, builder_desc),
+        Some((java_home, builder_desc)) => (java_home, builder_desc), None => return,
     };
    
     success!("JAVA_HOME    = {}", java_home);

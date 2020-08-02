@@ -25,7 +25,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
         },
     };
     if *VERBOSE {
-        warning!("Content-Length: {}", header_content_length);
+        debugging!("Content-Length: {}", header_content_length);
     }
     copy_io(&mut response, dest, header_content_length)?;
     Ok(())
@@ -33,7 +33,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
 
 pub fn get_url_content(url: &str) -> XResult<String> {
     if *VERBOSE {
-        warning!("Get URL: {}", url);
+        debugging!("Get URL: {}", url);
     }
     Ok(reqwest::get(url)?.text()?)
 }

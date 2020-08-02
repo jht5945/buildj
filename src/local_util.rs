@@ -15,19 +15,13 @@ use crypto::{
 };
 
 pub fn get_args_as_vec() -> Vec<String> {
-    // let mut args_vec:Vec<String> = vec![];
-    // for arg in env::args() {
-    //     args_vec.push(arg);
-    // }
-    // args_vec
     env::args().collect::<Vec<String>>()
 }
 
 pub fn is_buildin_args(args: &[String]) -> bool {
-    match args.get(1) {
-        None => false,
-        Some(arg) => arg.starts_with(":::") || arg.starts_with("..."),
-    }
+    args.get(1)
+        .map(|arg| arg.starts_with(":::") || arg.starts_with("..."))
+        .unwrap_or(false)
 }
 
 pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> {
@@ -78,12 +72,12 @@ pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &s
 }
 
 pub fn get_user_home() -> XResult<String> {
-   match dirs::home_dir() {
-        None => Err(new_box_ioerror("Home dir not found!")),
+    match dirs::home_dir() {
         Some(home_dir_o) => match home_dir_o.to_str() {
-            None => Err(new_box_ioerror("Home dir not found!")),
             Some(home_dir_str) => Ok(home_dir_str.to_string()),
+            None => Err(new_box_ioerror("Home dir not found!")),
         },
+        None => Err(new_box_ioerror("Home dir not found!")),
     }
 }
 
