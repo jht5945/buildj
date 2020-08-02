@@ -26,8 +26,7 @@ lazy_static! {
 
 pub fn get_java_home(version: &str) -> Option<String> {
     match get_macos_java_home(version) {
-        Some(j) => Some(j),
-        None => match get_local_java_home(version) {
+        Some(j) => Some(j), None => match get_local_java_home(version) {
             Some(j) => Some(j),
             None => iff!(get_cloud_java(version), get_local_java_home(version), None),
         },

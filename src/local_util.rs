@@ -6,11 +6,7 @@ use std::{
     process::Command,
     time::SystemTime,
 };
-use rust_util::{
-    XResult,
-    new_box_ioerror,
-    util_io::*,
-};
+use rust_util::{ XResult, new_box_ioerror, util_io::* };
 use crypto::{
     digest::Digest,
     md5::Md5,
