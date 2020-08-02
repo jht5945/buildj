@@ -6,14 +6,7 @@ use std::{
     path::Path,
     process::Command,
 };
-use rust_util::{
-    iff,
-    util_os::*,
-    util_msg::{
-        print_error,
-        print_debug,
-    },
-};
+use rust_util::util_os::*;
 use super::{
     local_util,
     tool,
@@ -67,7 +60,7 @@ pub fn get_cloud_java(version: &str) -> bool {
             return true;
         }
     }
-    print_error(&format!("Get java failed, version: {}", version));
+    failure!("Get java failed, version: {}", version);
     false
 }
 
@@ -78,7 +71,7 @@ pub fn get_macos_java_home(version: &str) -> Option<String> {
     let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;
     let output_in_utf8 = str::from_utf8(&output.stderr).ok()?;
     if *VERBOSE {
-        print_debug(&format!("java_home outputs: {}", output_in_utf8));
+        debugging!("java_home outputs: {}", output_in_utf8);
     }
     if output_in_utf8.contains("Unable to find any JVMs") {
         None
@@ -94,7 +87,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
         if let Ok(dir_entry) = path {
             if let Some(p)= dir_entry.path().to_str() {
                 if *VERBOSE {
-                    print_debug(&format!("Try match path: {}", p));
+                    debugging!("Try match path: {}", p);
                 }
                 let mut path_name = p;
                 if p.ends_with('/') {
@@ -111,7 +104,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                 };
                 if let Some(matched_path) = matched_path_opt {
                     if *VERBOSE {
-                        print_debug(&format!("Matched JDK path found: {}", matched_path));
+                        debugging!("Matched JDK path found: {}", matched_path);
                     }
                     return if local_util::is_path_exists(matched_path, "Contents/Home") {
                         Some(format!("{}/{}", matched_path, "Contents/Home"))
@@ -128,7 +121,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
 pub fn extract_jdk_and_wait(file_name: &str) {
     if let Ok(local_java_home_base_dir) = local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
         local_util::extract_package_and_wait(&local_java_home_base_dir, file_name).unwrap_or_else(|err| {
-            print_error(&format!("Extract file: {}, failed: {}", file_name, err));
+            failure!("Extract file: {}, failed: {}", file_name, err);
         });
     }
 }

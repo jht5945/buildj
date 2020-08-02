@@ -10,7 +10,6 @@ use std::{
 use rust_util::{
     XResult,
     new_box_ioerror,
-    util_msg::print_error,
     util_io::*,
 };
 
@@ -51,7 +50,7 @@ pub fn verify_file_integrity(integrity: &str, file_name: &str) -> XResult<bool> 
             };
             let integrity_verify_result = digest_hex == calc_digest_hex.as_str();
             if ! integrity_verify_result {
-                print_error(&format!("Verify integrity failed, expected: {}, actual: {}", digest_hex, calc_digest_hex));
+                failure!("Verify integrity failed, expected: {}, actual: {}", digest_hex, calc_digest_hex);
             }
             Ok(integrity_verify_result)
         },
@@ -131,7 +130,7 @@ pub fn init_home_dir(home_sub_dir: &str) {
 pub fn init_dir(dir: &str) {
     if ! Path::new(dir).exists() {
         fs::create_dir_all(dir).unwrap_or_else(|err| {
-            print_error(&format!("Init dir {} failed: {}", dir, err));
+            failure!("Init dir {} failed: {}", dir, err);
         });
     }
 }
