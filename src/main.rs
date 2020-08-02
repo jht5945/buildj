@@ -257,8 +257,7 @@ fn process_envs(the_env: &mut HashMap<String, String>, build_json_object: &json:
             if *VERBOSE {
                 debugging!("Env: {}", env);
             }
-            let env_k = &env[0];
-            let env_v = &env[1];
+            let (env_k, env_v) = (&env[0], &env[1]);
             if let (Some(env_k_str), Some(env_v_str)) = (env_k.as_str(), env_v.as_str()) {
                 the_env.insert(env_k_str.to_owned(), env_v_str.to_owned());
             }
