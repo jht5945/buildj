@@ -6,6 +6,7 @@ extern crate term;
 extern crate dirs;
 extern crate crypto;
 extern crate urlencoding;
+#[macro_use]
 extern crate rust_util;
 
 pub mod jdk;
@@ -46,13 +47,13 @@ const BUILD_DATE: &str = env!("BUILD_DATE");
 fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
     let ver = &first_arg[7..];
     if ver.is_empty() {
-        print_error("Java version is not assigned!");
+        failure!("Java version is not assigned!");
         return;
     }
     match get_java_home(ver) {
-        None => print_error(&format!("Assigned java version not found: {}", ver)),
+        None => failure!("Assigned java version not found: {}", ver),
         Some(java_home) => {
-            print_ok(&format!("Find java home: {}", java_home));
+            success!("Find java home: {}", java_home);
             let java_bin = &format!("{}/bin/java", java_home);
             let mut cmd = Command::new(java_bin);
             cmd.envs(&get_env_with_java_home(&java_home));
@@ -60,7 +61,7 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
                 cmd.args(&args[2..]);
             }
             run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
-                print_error(&format!("Exec java failed: {}", err));
+                failure!("Exec java failed: {}", err);
             });
         },
     };
@@ -76,13 +77,13 @@ fn do_with_buildin_arg_gradle(first_arg: &str, args: &[String]) {
 
 fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
     if args.len() <= 2 {
-        print_error("No arguments, get or set.");
+        failure!("No arguments, get or set.");
         return;
     }
     match args[2].as_str() {
         "get" => match get_tool_package_secret() {
-            Err(_) => print_warn("No config found."),
-            Ok(secret) => print_ok(&format!("Config secret: {}", secret)),
+            Err(_) => warning!("No config found."),
+            Ok(secret) => success!("Config secret: {}", secret),
         },
         "set" => {
             if args.len() < 4 {
@@ -345,11 +346,11 @@ fn read_build_json_object() -> Option<json::JsonValue> {
 
 
 fn main() {
-    print_info(&format!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]));
+    information!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]);
 
     if *VERBOSE {
-        print_debug(&format!("Full GIT_HASH: {}", GIT_HASH));
-        print_debug(&format!("Build date: {}", BUILD_DATE));
+        debugging!("Full GIT_HASH: {}", GIT_HASH);
+        debugging!("Build date: {}", BUILD_DATE);
     }
 
     let args = local_util::get_args_as_vec();

@@ -1,7 +1,7 @@
 use std::{
     env,
-    fs::{self, File},
-    io::{Read, ErrorKind},
+    fs::{ self, File },
+    io::{ Read, ErrorKind },
     path::Path,
     process::Command,
     time::SystemTime,
@@ -10,9 +10,7 @@ use std::{
 use rust_util::{
     XResult,
     new_box_ioerror,
-    util_msg::{
-        print_error,
-    },
+    util_msg::print_error,
     util_io::*,
 };
 
@@ -81,7 +79,7 @@ pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &s
         };
         digest.input(&buf[..len]);
         written += len as i64;
-        let cost = SystemTime::now().duration_since(start.clone()).unwrap();
+        let cost = SystemTime::now().duration_since(start).unwrap();
         print_status_last_line(&format!("Calc {}", digest_alg), file_len, written, cost);
     }
 }
