@@ -1,12 +1,12 @@
 use std::env;
-use rust_util::util_env::*;
+use rust_util::util_env;
 
 lazy_static! {
-    pub static ref VERBOSE: bool = is_env_on("BUILDJ_VERBOSE");
-    pub static ref NOAUTH: bool = is_env_on("BUILDJ_NOAUTH");
-    pub static ref NOBUILDIN: bool = is_env_on("BUILDJ_NOBUILDIN");
-    pub static ref AUTH_TOKEN: Option<String> = env::var("BUILDJ_AUTH_TOKEN").ok();
-    pub static ref JAVA_VERSION: Option<String> = env::var("BUILDJ_JAVA").ok();
+    pub static ref VERBOSE: bool   = util_env::is_env_on("BUILDJ_VERBOSE");
+    pub static ref NOAUTH: bool    = util_env::is_env_on("BUILDJ_NOAUTH");
+    pub static ref NOBUILDIN: bool = util_env::is_env_on("BUILDJ_NOBUILDIN");
+    pub static ref AUTH_TOKEN: Option<String>      = env::var("BUILDJ_AUTH_TOKEN").ok();
+    pub static ref JAVA_VERSION: Option<String>    = env::var("BUILDJ_JAVA").ok();
     pub static ref BUILDER_VERSION: Option<String> = env::var("BUILDJ_BUILDER").ok();
 }
 

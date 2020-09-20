@@ -1,17 +1,6 @@
-use std::{
-    fs::{ self, File },
-    path::Path,
-};
-use rust_util::{
-    XResult,
-    new_box_ioerror,
-    util_os::is_macos_or_linux,
-};
-use crate::{
-    http::{ download_url, get_url_content },
-    local_util::{ self, * },
-    misc::*,
-};
+use std::{ fs::{ self, File }, path::Path };
+use rust_util::{ XResult, new_box_ioerror, util_os };
+use crate::{ http, local_util, misc::{ AUTH_TOKEN, VERBOSE, NOAUTH } };
 
 const M2_HOME: &str = "M2_HOME";
 const MAVEN_HOME: &str = "MAVEN_HOME";
@@ -54,7 +43,7 @@ impl BuilderDesc {
 }
 
 pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
-    let local_builder_home_base_dir = match get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
+    let local_builder_home_base_dir = match local_util::get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
         Ok(o) => o, Err(_) => return None,
     };
     let builder_name = match builder {
@@ -75,7 +64,7 @@ pub fn get_builder_home(builder: &str, version: &str) -> Option<BuilderDesc> {
 }
 
 pub fn get_cloud_builder(builder: &str, version: &str) -> bool {
-    if ! is_macos_or_linux() {
+    if ! util_os::is_macos_or_linux() {
         return false;
     }
     let local_builder_home_base_dir = match local_util::get_user_home_dir(LOCAL_BUILDER_HOME_BASE_DIR) {
@@ -119,7 +108,7 @@ pub fn get_tool_package_secret() -> XResult<String> {
         return Ok((*AUTH_TOKEN).as_ref().unwrap().clone());
     }
 
-    let standard_config_file = get_user_home_dir(STANDARD_CONFIG_JSON)?;
+    let standard_config_file = local_util::get_user_home_dir(STANDARD_CONFIG_JSON)?;
     let standard_config_json = fs::read_to_string(&standard_config_file)?;
     let standard_config_object = json::parse(&standard_config_json)?;
 
@@ -133,7 +122,7 @@ pub fn get_tool_package_secret() -> XResult<String> {
 }
 
 pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
-    let standard_config_file = get_user_home_dir(STANDARD_CONFIG_JSON)?;
+    let standard_config_file = local_util::get_user_home_dir(STANDARD_CONFIG_JSON)?;
 
     match fs::metadata(&standard_config_file) {
         Err(_) => {
@@ -196,7 +185,7 @@ pub fn get_tool_package_detail(name: &str, version: &str) -> XResult<String> {
     url.push_str(&urlencoding::encode(name));
     url.push_str("&ver=");
     url.push_str(&urlencoding::encode(version));
-    Ok(get_url_content(url.as_str())?)
+    Ok(http::get_url_content(url.as_str())?)
 }
 
 pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &str, version: &str, extract_match: bool) -> XResult<bool> {
@@ -228,11 +217,11 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
         target_base_dir.push_str("/");
         target_base_dir.push_str(&format!("{}-{}", n, v));
     }
-    init_dir(&target_base_dir);
+    local_util::init_dir(&target_base_dir);
     let target_file_name = format!("{}/{}", &target_base_dir, name.to_string());
 
     information!("Start download: {} -> {}", &url.to_string(), &target_file_name);
-    download_url(&url.to_string(), &mut File::create(&target_file_name)?)?;
+    http::download_url(&url.to_string(), &mut File::create(&target_file_name)?)?;
 
     information!("Start verify integrity: {} ...", &target_file_name);
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {

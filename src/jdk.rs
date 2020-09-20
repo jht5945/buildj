@@ -1,13 +1,6 @@
-use std::{
-    collections::HashMap,
-    env,
-    fs,
-    str,
-    path::Path,
-    process::Command,
-};
-use rust_util::util_os::*;
-use crate::{ local_util, tool, misc::* };
+use std::{ collections::HashMap, env, fs, str, path::Path, process::Command };
+use rust_util::util_os;
+use crate::{ local_util, tool, misc::{ VERBOSE } };
 
 const PATH: &str = "PATH";
 const JAVA_HOME: &str = "JAVA_HOME";
@@ -34,13 +27,13 @@ pub fn get_java_home(version: &str) -> Option<String> {
 }
 
 pub fn get_cloud_java(version: &str) -> bool {
-    if ! is_macos_or_linux() {
+    if ! util_os::is_macos_or_linux() {
         return false;
     }
     let cloud_java_names = match &*BUILDJ_JAVA_NAME {
-        None => if is_macos() {
+        None => if util_os::is_macos() {
             vec![OPENJDK_MACOS]
-        } else if is_linux() {
+        } else if util_os::is_linux() {
             vec![JDK_LINUX, OPENJDK_LINUX]
         } else {
             vec![]
@@ -60,7 +53,7 @@ pub fn get_cloud_java(version: &str) -> bool {
 }
 
 pub fn get_macos_java_home(version: &str) -> Option<String> {
-    if ! is_macos() {
+    if ! util_os::is_macos() {
         return None;
     }
     let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;

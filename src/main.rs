@@ -302,23 +302,17 @@ fn read_build_json_object() -> Option<json::JsonValue> {
         return Some(o);
     }
 
-    let build_json = match find_build_json() {
-        Some(p) => p, None => return None,
-    };
-
+    let build_json = find_build_json()?;
     success!("Find {} @ {}", BUILD_JSON, build_json);
-    let build_json_content = match fs::read_to_string(build_json) {
-        Ok(content) => content, Err(err) => {
-            failure!("Read {} failed: {}", BUILD_JSON, err);
-            return None;
-        },
-    };
-    match json::parse(&build_json_content) {
-        Ok(object) => Some(object), Err(err) => {
-            failure!("Parse JSON failed: {}", err);
-            None
-        },
-    }
+
+    let build_json_content = fs::read_to_string(build_json).map_err(|err| {
+        failure!("Read {} failed: {}", BUILD_JSON, err);
+        err
+    }).ok()?;
+    json::parse(&build_json_content).map_err(|err| {
+        failure!("Parse JSON failed: {}", err);
+        err
+    }).ok()
 }
 
 

@@ -106,17 +106,17 @@ pub fn find_build_json_in_parents() -> Option<String> {
 }
 
 pub fn find_build_json() -> Option<String> {
-    match find_build_json_in_current() {
-        Some(p) => Some(p),
-        None => match find_build_json_in_parents() {
-            Some(p) => {
-                warning!("Cannot find {} in current dir, find: {}", BUILD_JSON, p);
-                Some(p)
-            },
-            None => {
-                failure!("Cannot find {}", BUILD_JSON);
-                None
-            },
+    if let Some(p) = find_build_json_in_current() {
+        return Some(p);
+    }
+    match find_build_json_in_parents() {
+        Some(p) => {
+            warning!("Cannot find {} in current dir, find: {}", BUILD_JSON, p);
+            Some(p)
+        },
+        None => {
+            failure!("Cannot find {}", BUILD_JSON);
+            None
         },
     }
 }
