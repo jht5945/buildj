@@ -4,7 +4,6 @@ use std::{
     io::{ Read, ErrorKind },
     path::Path,
     process::Command,
-    time::SystemTime,
 };
 use rust_util::{ XResult, new_box_ioerror, util_io::* };
 use crypto::{
@@ -55,7 +54,7 @@ pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &s
     let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
     let file_len = f.metadata().map(|md| md.len() as i64).unwrap_or(-1_i64);
-    let start = SystemTime::now();
+    let mut print_status_context = PrintStatusContext::default();
     let mut written = 0_i64;
     loop {
         let len = match f.read(&mut buf) {
@@ -66,8 +65,7 @@ pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &s
         };
         digest.input(&buf[..len]);
         written += len as i64;
-        let cost = SystemTime::now().duration_since(start).unwrap();
-        print_status_last_line(&format!("Calc {}", digest_alg), file_len, written, cost);
+        print_status_last_line(&format!("Calc {}", digest_alg), file_len, written, &mut print_status_context);
     }
 }
 

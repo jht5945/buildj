@@ -1,5 +1,5 @@
 use std::fs::File;
-use rust_util::{ XResult, util_io::copy_io };
+use rust_util::{ XResult, util_io };
 
 use crate::misc::VERBOSE;
 
@@ -27,7 +27,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     if *VERBOSE {
         debugging!("Content-Length: {}", header_content_length);
     }
-    copy_io(&mut response, dest, header_content_length)?;
+    util_io::copy_io_default(&mut response, dest, header_content_length)?;
     Ok(())
 }
 
