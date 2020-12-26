@@ -1,5 +1,5 @@
-use std::{ fs, path::Path };
-use rust_util::{ XResult, new_box_ioerror };
+use std::{fs, path::Path};
+use rust_util::{XResult, new_box_ioerror};
 
 use crate::http::get_url_content;
 use crate::misc::VERBOSE;

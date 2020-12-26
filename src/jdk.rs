@@ -1,6 +1,6 @@
-use std::{ collections::HashMap, env, fs, str, path::Path, process::Command };
+use std::{collections::HashMap, env, fs, str, path::Path, process::Command};
 use rust_util::util_os;
-use crate::{ local_util, tool, misc::{ VERBOSE } };
+use crate::{local_util, tool, misc::VERBOSE};
 
 const PATH: &str = "PATH";
 const JAVA_HOME: &str = "JAVA_HOME";

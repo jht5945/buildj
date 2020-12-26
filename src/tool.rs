@@ -1,6 +1,6 @@
-use std::{ fs::{ self, File }, path::Path };
-use rust_util::{ XResult, new_box_ioerror, util_os };
-use crate::{ http, local_util, misc::{ AUTH_TOKEN, VERBOSE, NOAUTH } };
+use std::{fs::{self, File}, path::Path};
+use rust_util::{ XResult, new_box_ioerror, util_os};
+use crate::{http, local_util, misc::{AUTH_TOKEN, VERBOSE, NOAUTH}};
 
 const M2_HOME: &str = "M2_HOME";
 const MAVEN_HOME: &str = "MAVEN_HOME";

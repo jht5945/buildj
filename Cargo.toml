@@ -1,6 +1,6 @@
 [package]
 name = "buildj"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Hatter Jiang <jht5945@gmail.com>"]
 edition = "2018"
 
@@ -12,4 +12,4 @@ urlencoding = "1.1.1"
 dirs = "3.0.1"
 rust-crypto = "0.2.36"
 lazy_static = "1.4.0"
-rust_util = "0.6.15"
+rust_util = "0.6.22"

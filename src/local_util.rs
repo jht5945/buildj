@@ -1,6 +1,6 @@
-use std::{ env, fs::{ self, File }, io::{ Read, ErrorKind }, path::Path, process::Command };
-use rust_util::{ XResult, new_box_ioerror, util_io::{ self, DEFAULT_BUF_SIZE, PrintStatusContext } };
-use crypto::{ digest::Digest, md5::Md5, sha1::Sha1, sha2::{ Sha256, Sha512 } };
+use std::{env, fs::{self, File}, io::{Read, ErrorKind}, path::Path, process::Command};
+use rust_util::{XResult, new_box_ioerror, util_io::{self, DEFAULT_BUF_SIZE, PrintStatusContext}};
+use crypto::{digest::Digest, md5::Md5, sha1::Sha1, sha2::{Sha256, Sha512}};
 
 pub fn get_args_as_vec() -> Vec<String> {
     env::args().collect::<Vec<String>>()

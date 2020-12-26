@@ -1,5 +1,5 @@
 use std::fs::File;
-use rust_util::{ XResult, util_io };
+use rust_util::{XResult, util_io};
 
 use crate::misc::VERBOSE;
 

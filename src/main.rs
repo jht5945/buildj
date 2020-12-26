@@ -2,14 +2,12 @@
 extern crate json;
 #[macro_use]
 extern crate lazy_static;
-extern crate term;
-extern crate dirs;
-extern crate crypto;
-extern crate urlencoding;
 #[macro_use]
 extern crate rust_util;
 
-use std::{ collections::HashMap, fs, process::Command };
+use std::fs;
+use std::collections::HashMap;
+use std::process::{self, Command};
 
 pub mod jdk;
 pub mod local_util;
@@ -46,9 +44,9 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
             if args.len() > 2 {
                 cmd.args(&args[2..]);
             }
-            run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+            if let Err(err) = run_command_and_wait(&mut cmd) {
                 failure!("Exec java failed: {}", err);
-            });
+            }
         },
     };
 }
@@ -127,9 +125,9 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     for arg in args.iter().skip(from_index) {
         cmd.arg(&arg);
     }
-    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+    if let Err(err) = run_command_and_wait(&mut cmd) {
         failure!("Run build command failed: {}", err);
-    });
+    }
 }
 
 fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
@@ -160,9 +158,9 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
     if *VERBOSE {
         debugging!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args);
     }
-    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+    if let Err(err) = run_command_and_wait(&mut cmd) {
         failure!("Run xRun command failed: {}", err);
-    });
+    }
 }
 
 fn do_with_buildin_args(args: &[String]) {
@@ -376,7 +374,14 @@ fn main() {
         }
         debugging!("-----END ENVIRONMENT VARIABLES-----");
     }
-    run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+    let exit_status = run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         failure!("Run build command failed: {}", err);
+        process::exit(-1);
     });
+
+    if !exit_status.success() {
+        if let Some(exit_code) = exit_status.code() {
+            process::exit(exit_code);
+        }
+    }
 }
