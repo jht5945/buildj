@@ -3,6 +3,9 @@ name = "buildj"
 version = "0.1.4"
 authors = ["Hatter Jiang <jht5945@gmail.com>"]
 edition = "2018"
+homepage = "https://buildj.ruststack.org/"
+license = "MIT"
+description = "A java build tool"
 
 [dependencies]
 json = "0.12.4"
