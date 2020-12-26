@@ -1,15 +1,15 @@
 # buildj
-buildj - java build tool
+buildj - java build tool, website: [https://buildj.ruststack.org/](https://buildj.ruststack.org/)
 
-#### Install
+## Install
 
 ```
 cargo install --git https://github.com/jht5945/buildj [--force]
 ```
 
-#### Usage
+## Usage
 
-Help:
+### Help
 ```
 $ buildj :::
 [INFO] buildj - version 0.1
@@ -25,7 +25,7 @@ buildj :::gradle<version> ]--java<version>]            - run gradle with assigne
 buildj                                                 - run build, run assigned version builder tool
 ```
 
-Run Java:
+### Run Java
 ```
 $ buildj :::java9 -version
 [INFO] buildj - version 0.1
@@ -50,7 +50,7 @@ Default locale: en_US, platform encoding: UTF-8
 OS name: "mac os x", version: "10.14.4", arch: "x86_64", family: "mac"
 ```
 
-Run Gradle:
+### Run Gradle
 ```
 $ buildj :::gradle3.5.1 -version
 [INFO] buildj - version 0.1
@@ -126,7 +126,4 @@ Use xRuns in build:
 }
 ```
 Command: `buildj ...pub`
-
-
-
 
