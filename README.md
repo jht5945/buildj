@@ -5,6 +5,10 @@ buildj - java build tool, website: [https://buildj.ruststack.org/](https://build
 
 ```
 cargo install --git https://github.com/jht5945/buildj [--force]
+
+OR
+
+cargo install buildj [--force]
 ```
 
 ## Usage
