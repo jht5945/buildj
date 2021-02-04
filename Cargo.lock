@@ -87,7 +87,7 @@ dependencies = [
 
 [[package]]
 name = "buildj"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "dirs 3.0.1",
  "json",
