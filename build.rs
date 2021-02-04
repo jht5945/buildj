@@ -7,4 +7,7 @@ fn main() {
     let date_output = Command::new("date").args(&["+%Y-%m-%dT%H:%M:%S%z"]).output().unwrap();
     let date = String::from_utf8(date_output.stdout).unwrap();
     println!("cargo:rustc-env=BUILD_DATE={}", date);
+    let date_year_output = Command::new("date").args(&["+%Y"]).output().unwrap();
+    let date_year = String::from_utf8(date_year_output.stdout).unwrap();
+    println!("cargo:rustc-env=BUILD_YEAR={}", date_year)
 }
