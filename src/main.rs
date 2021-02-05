@@ -1,9 +1,6 @@
-#[macro_use]
-extern crate json;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate rust_util;
+#[macro_use] extern crate json;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate rust_util;
 
 use std::fs;
 use std::collections::HashMap;
@@ -16,16 +13,11 @@ pub mod tool;
 pub mod build_json;
 pub mod misc;
 
-use rust_util::util_cmd::run_command_and_wait;
+use rust_util::util_cmd;
 use tool::*;
 use jdk::*;
 use build_json::*;
 use misc::*;
-
-const BUILDJ:     &str = "buildj";
-const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
-const GIT_HASH:   &str = env!("GIT_HASH");
-const BUILD_DATE: &str = env!("BUILD_DATE");
 
 
 fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
@@ -44,7 +36,7 @@ fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
             if args.len() > 2 {
                 cmd.args(&args[2..]);
             }
-            if let Err(err) = run_command_and_wait(&mut cmd) {
+            if let Err(err) = util_cmd::run_command_and_wait(&mut cmd) {
                 failure!("Exec java failed: {}", err);
             }
         },
@@ -125,7 +117,7 @@ fn do_with_buildin_arg_builder(first_arg: &str, args: &[String], builder_name: &
     for arg in args.iter().skip(from_index) {
         cmd.arg(&arg);
     }
-    if let Err(err) = run_command_and_wait(&mut cmd) {
+    if let Err(err) = util_cmd::run_command_and_wait(&mut cmd) {
         failure!("Run build command failed: {}", err);
     }
 }
@@ -158,7 +150,7 @@ fn do_with_buildin_arg_ddd(first_arg: &str, args: &[String]) {
     if *VERBOSE {
         debugging!("Running cmd: {}, args: {:?}", &cmd_name, cmd_args);
     }
-    if let Err(err) = run_command_and_wait(&mut cmd) {
+    if let Err(err) = util_cmd::run_command_and_wait(&mut cmd) {
         failure!("Run xRun command failed: {}", err);
     }
 }
@@ -315,10 +307,15 @@ fn read_build_json_object() -> Option<json::JsonValue> {
 
 
 fn main() {
-    information!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &GIT_HASH[0..7]);
+    match get_short_git_hash() {
+        None => information!("{} - version {}", BUILDJ, BUDERJ_VER),
+        Some(shot_git_hash) => information!("{} - version {} - {}", BUILDJ, BUDERJ_VER, &shot_git_hash),
+    }
 
     if *VERBOSE {
-        debugging!("Full GIT_HASH: {}", GIT_HASH);
+        if let Some(full_git_hash) = get_full_git_hash() {
+            debugging!("Full GIT_HASH: {}", full_git_hash);
+        }
         debugging!("Build date: {}", BUILD_DATE);
     }
 
@@ -374,7 +371,7 @@ fn main() {
         }
         debugging!("-----END ENVIRONMENT VARIABLES-----");
     }
-    let exit_status = run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
+    let exit_status = util_cmd::run_command_and_wait(&mut cmd).unwrap_or_else(|err| {
         failure!("Run build command failed: {}", err);
         process::exit(-1);
     });

@@ -2,6 +2,12 @@ use std::env;
 use rust_util::util_env;
 use rust_util::util_term;
 
+pub const BUILDJ:     &str = "buildj";
+pub const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
+pub const BUILD_DATE: &str = env!("BUILD_DATE");
+const     GIT_HASH:   &str = env!("GIT_HASH");
+
+
 lazy_static! {
     pub static ref VERBOSE: bool   = util_env::is_env_on("BUILDJ_VERBOSE");
     pub static ref NOAUTH: bool    = util_env::is_env_on("BUILDJ_NOAUTH");
@@ -17,18 +23,26 @@ pub fn print_usage() {
 }
 
 pub fn print_version() {
-  println!(r#"buildj {} - {}
-Full git commit hash: {}{}{}
+  println!(r#"buildj {}{}{}
+Build date: {}
 
 Copyright (C) 2019-{} Hatter Jiang.
 License MIT <{}https://opensource.org/licenses/MIT{}>
 
 Official website: {}https://buildj.ruststack.org/{}
-"#, super::BUDERJ_VER,
-           &super::GIT_HASH[0..7],
-           util_term::BOLD, &super::GIT_HASH, util_term::END,
+"#, BUDERJ_VER,
+           get_short_git_hash().map(|h| format!(" - {}", h)).unwrap_or("".into()),
+           get_full_git_hash().map(|h| format!("\nFull git commit hash: {}{}{}", util_term::BOLD, h, util_term::END)).unwrap_or("".into()),
+           BUILD_DATE,
            *BUILD_YEAR,
            util_term::UNDER, util_term::END,
            util_term::UNDER, util_term::END);
 }
 
+pub fn get_full_git_hash() -> Option<&'static str> {
+    iff!(GIT_HASH.is_empty(), None, Some(GIT_HASH))
+}
+
+pub fn get_short_git_hash() -> Option<&'static str> {
+    get_full_git_hash().map(|h| &h[0..7])
+}

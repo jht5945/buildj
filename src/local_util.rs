@@ -1,5 +1,10 @@
-use std::{env, fs::{self, File}, io::{Read, ErrorKind}, path::Path, process::Command};
-use rust_util::{XResult, new_box_ioerror, util_io::{self, DEFAULT_BUF_SIZE, PrintStatusContext}};
+use std::env;
+use std::path::Path;
+use std::process::Command;
+use std::fs::{self, File};
+use std::io::{Read, ErrorKind};
+use rust_util::{XResult, new_box_ioerror};
+use rust_util::util_io::{self, DEFAULT_BUF_SIZE, PrintStatusContext};
 use crypto::{digest::Digest, md5::Md5, sha1::Sha1, sha2::{Sha256, Sha512}};
 
 pub fn get_args_as_vec() -> Vec<String> {
@@ -40,7 +45,7 @@ pub fn calc_sha256(d: &[u8]) -> String {
 }
 
 pub fn calc_file_digest(digest: &mut dyn Digest, digest_alg: &str, file_name: &str) -> XResult<String> {
-    let mut buf: [u8; DEFAULT_BUF_SIZE] = [0u8; DEFAULT_BUF_SIZE];
+    let mut buf = [0u8; DEFAULT_BUF_SIZE];
     let mut f = File::open(file_name)?;
     let file_len = f.metadata().map(|md| md.len() as i64).unwrap_or(-1_i64);
     let mut print_status_context = PrintStatusContext::default();
