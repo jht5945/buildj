@@ -52,6 +52,7 @@ fn do_with_buildin_arg_gradle(first_arg: &str, args: &[String]) {
 }
 
 fn do_with_buildin_arg_config(_first_arg: &str, args: &[String]) {
+    information!("Current config file: ~/{}", tool::STANDARD_CONFIG_JSON);
     if args.len() <= 2 {
         failure!("No arguments, get or set.");
         return;

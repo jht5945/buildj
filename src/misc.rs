@@ -1,6 +1,5 @@
 use std::env;
-use rust_util::util_env;
-use rust_util::util_term;
+use rust_util::{util_env, util_term};
 
 pub const BUILDJ:     &str = "buildj";
 pub const BUDERJ_VER: &str = env!("CARGO_PKG_VERSION");
@@ -40,6 +39,7 @@ Official website: {}https://buildj.ruststack.org/{}
 }
 
 pub fn get_full_git_hash() -> Option<&'static str> {
+    // build from crates, git hash is empty
     iff!(GIT_HASH.is_empty(), None, Some(GIT_HASH))
 }
 

@@ -1,5 +1,5 @@
 use std::{fs, path::Path};
-use rust_util::{XResult, new_box_ioerror};
+use rust_util::XResult;
 
 use crate::http::get_url_content;
 use crate::misc::VERBOSE;
@@ -24,7 +24,7 @@ pub fn get_archive_version(gid: &str, aid: &str) -> XResult<String> {
     }
     let version_result_object = json::parse(&version_result)?;
     if version_result_object["status"] != 200 {
-        Err(new_box_ioerror(&format!("Get archive info version failed: {}", version_result)))
+        simple_error!("Get archive info version failed: {}", version_result)
     } else {
         Ok(version_result_object["data"].to_string())
     }

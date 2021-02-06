@@ -7,7 +7,7 @@ pub fn download_url(url: &str, dest: &mut File) -> XResult<()> {
     if *VERBOSE {
         debugging!("Start download URL: {}", url);
     }
-    let mut response = reqwest::get(url)?;
+    let mut response = reqwest::blocking::get(url)?;
     let header_content_length: i64 = match response.headers().get("content-length") {
         None => -1_i64, Some(len_value) => {
             let len_str = len_value.to_str().unwrap_or_else(|err| {
@@ -31,5 +31,5 @@ pub fn get_url_content(url: &str) -> XResult<String> {
     if *VERBOSE {
         debugging!("Get URL: {}", url);
     }
-    Ok(reqwest::get(url)?.text()?)
+    Ok(reqwest::blocking::get(url)?.text()?)
 }

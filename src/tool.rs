@@ -1,5 +1,5 @@
 use std::{fs::{self, File}, path::Path};
-use rust_util::{ XResult, new_box_ioerror, util_os};
+use rust_util::{ XResult, util_os};
 use crate::{http, local_util, misc::{AUTH_TOKEN, VERBOSE, NOAUTH}};
 
 const M2_HOME: &str = "M2_HOME";
@@ -7,7 +7,7 @@ const MAVEN_HOME: &str = "MAVEN_HOME";
 const GRADLE_HOME: &str = "GRADLE_HOME";
 
 pub const LOCAL_BUILDER_HOME_BASE_DIR: &str = ".jssp/builder";
-const STANDARD_CONFIG_JSON: &str = ".standard_config.json";
+pub const STANDARD_CONFIG_JSON: &str = ".standard_config.json";
 const TOOL_PACKAGE_DETAIL_URL: &str = "https://hatter.ink/tool/query_tool_by_name_version.json";
 const TOOL_PACKAGE_DETAIL_URL_WITHOUT_AUTH: &str = "https://hatter.ink/tool/query_tool_by_name_version_without_auth.json";
 
@@ -115,7 +115,7 @@ pub fn get_tool_package_secret() -> XResult<String> {
     let build_js_auth_token = &standard_config_object["build.js"]["auth_token"];
     
     if build_js_auth_token.is_null() {
-        Err(new_box_ioerror("Standard json#build.js#auth_token is null."))
+        simple_error!("Standard json#build.js#auth_token is null.")
     } else {
         Ok(build_js_auth_token.to_string())
     }
@@ -131,12 +131,12 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
                     "auth_token" => secret, }
                 }, 4)) {
                 Ok(_) => Ok(()),
-                Err(err) => Err(new_box_ioerror(&format!("Write config failed: {}, error message: {}", standard_config_file, err))),
+                Err(err) => simple_error!("Write config failed: {}, error message: {}", standard_config_file, err),
             }
         },
         Ok(f) => {
             if ! f.is_file() {
-                return Err(new_box_ioerror(&format!("Config is not a file: {}", standard_config_file)));
+                return simple_error!("Config is not a file: {}", standard_config_file);
             }
             let standard_config_json = fs::read_to_string(&standard_config_file)?;
             let mut standard_config_object = json::parse(&standard_config_json)?;
@@ -149,7 +149,7 @@ pub fn set_tool_package_secret(secret: &str) -> XResult<()> {
             }
             match fs::write(&standard_config_file, json::stringify_pretty(standard_config_object, 4)) {
                 Ok(_) => Ok(()),
-                Err(err) => Err(new_box_ioerror(&format!("Write config failed: {}, error message: {}", &standard_config_file, err))),
+                Err(err) => simple_error!("Write config failed: {}, error message: {}", &standard_config_file, err),
             }
         }
     }
@@ -195,20 +195,20 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
         debugging!("Get tool {}:{}, result JSON: {}", name, version, json::stringify_pretty(build_json_object.clone(), 4));
     }
     if build_json_object["status"] != 200 {
-        return Err(new_box_ioerror(&format!("Error in get tool package detail: {}", build_json_object["message"])));
+        return simple_error!("Error in get tool package detail: {}", build_json_object["message"]);
     }
     let data = &build_json_object["data"];
     let integrity = &data["integrity"];
     let url = &data["url"];
     let name = &data["name"];
     if integrity.is_null() || url.is_null() || name.is_null() {
-        return Err(new_box_ioerror(&format!("Parse tool package detail failed: {}", tool_package_detail)));
+        return simple_error!("Parse tool package detail failed: {}", tool_package_detail);
     }
     let n = data["n"].to_string();
     let v = data["v"].to_string();
 
     if extract_match &&  version != v {
-        return Err(new_box_ioerror(&format!("Required version not match, {}: {} vs {}", name, version, &v)));
+        return simple_error!("Required version not match, {}: {} vs {}", name, version, &v);
     }
 
     let mut target_base_dir = String::with_capacity(512);
@@ -227,7 +227,7 @@ pub fn get_and_extract_tool_package(base_dir: &str, dir_with_name: bool, name: &
     if local_util::verify_file_integrity(&integrity.to_string(), &target_file_name)? {
         success!("Verify integrity success.");
     } else {
-        return Err(new_box_ioerror("Verify integrity failed!"));
+        return simple_error!("Verify integrity failed!");
     }
 
     success!("Start extract file: {}", &target_file_name);
