@@ -20,17 +20,28 @@ use build_json::*;
 use misc::*;
 
 
-fn do_with_buildin_arg_java(first_arg: &str, args: &[String]) {
-    let ver = &first_arg[7..];
-    if ver.is_empty() {
-        failure!("Java version is not assigned!");
-        return;
-    }
+fn do_with_buildin_arg_java_cmd(first_arg: &str, args: &[String]) {
+    let first_num_pos = first_arg.chars().position(|c| c >= '0' && c <= '9');
+    let (cmd, ver) = match first_num_pos {
+        None => {
+            failure!("Java command version is not assigned!");
+            return;
+        },
+        Some(pos) => {
+            (&first_arg[3..pos], &first_arg[pos..])
+        },
+    };
     match get_java_home(ver) {
         None => failure!("Assigned java version not found: {}", ver),
         Some(java_home) => {
             success!("Find java home: {}", java_home);
-            let java_bin = &format!("{}/bin/java", java_home);
+            let java_bin = &format!("{}/bin/{}", java_home, cmd);
+            if fs::metadata(java_bin).is_ok() {
+                success!("Command found: {}", java_bin);
+            } else {
+                failure!("Command {} not exists", java_bin);
+                return;
+            }
             let mut cmd = Command::new(java_bin);
             cmd.envs(&get_env_with_java_home(&java_home));
             if args.len() > 2 {
@@ -163,10 +174,23 @@ fn do_with_buildin_args(args: &[String]) {
         ":::version"      => print_version(),
         ":::create"       => create_build_json(args),
         ":::config"       => do_with_buildin_arg_config(first_arg, args),
-        a if a.starts_with(":::java")   => do_with_buildin_arg_java  (a, args),
-        a if a.starts_with(":::maven")  => do_with_buildin_arg_maven (a, args),
-        a if a.starts_with(":::gradle") => do_with_buildin_arg_gradle(a, args),
-        a if a.starts_with("...")       => do_with_buildin_arg_ddd   (a, args),
+        a if a.starts_with(":::jar")    => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::java")   => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jinfo")  => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jlink")  => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::keytool")=> do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jaotc")  => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jcmd")   => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jconsole")=> do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jdb")    => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jmap")   => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jps")    => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jstack") => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jstat")  => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::jimage") => do_with_buildin_arg_java_cmd(a, args),
+        a if a.starts_with(":::maven")  => do_with_buildin_arg_maven   (a, args),
+        a if a.starts_with(":::gradle") => do_with_buildin_arg_gradle  (a, args),
+        a if a.starts_with("...")       => do_with_buildin_arg_ddd     (a, args),
         _ => failure!("Unknown args: {:?}", &args),
     }
 }
