@@ -1,6 +1,8 @@
 use std::{collections::HashMap, env, fs, str, path::Path, process::Command};
 use rust_util::util_os;
+use rust_util::util_env;
 use crate::{local_util, tool, misc::VERBOSE};
+use plist::Value;
 
 const PATH: &str = "PATH";
 const JAVA_HOME: &str = "JAVA_HOME";
@@ -19,7 +21,8 @@ lazy_static! {
 
 pub fn get_java_home(version: &str) -> Option<String> {
     match get_macos_java_home(version) {
-        Some(j) => Some(j), None => match get_local_java_home(version) {
+        Some(j) => Some(j),
+        None => match get_local_java_home(version) {
             Some(j) => Some(j),
             None => iff!(get_cloud_java(version), get_local_java_home(version), None),
         },
@@ -27,7 +30,7 @@ pub fn get_java_home(version: &str) -> Option<String> {
 }
 
 pub fn get_cloud_java(version: &str) -> bool {
-    if ! util_os::is_macos_or_linux() {
+    if !util_os::is_macos_or_linux() {
         return false;
     }
     let cloud_java_names = match &*BUILDJ_JAVA_NAME {
@@ -41,7 +44,8 @@ pub fn get_cloud_java(version: &str) -> bool {
         Some(buildj_java_name) => vec![buildj_java_name.as_str()],
     };
     let local_java_home_base_dir = match local_util::get_user_home_dir(LOCAL_JAVA_HOME_BASE_DIR) {
-        Ok(o) => o, Err(_) => return false,
+        Ok(o) => o,
+        Err(_) => return false,
     };
     for cloud_java_name in cloud_java_names {
         if tool::get_and_extract_tool_package(&local_java_home_base_dir, false, cloud_java_name, version, false).is_ok() {
@@ -53,19 +57,39 @@ pub fn get_cloud_java(version: &str) -> bool {
 }
 
 pub fn get_macos_java_home(version: &str) -> Option<String> {
-    if ! util_os::is_macos() {
+    if !util_os::is_macos() || util_env::is_env_on("SKIP_CHECK_JAVA_HOME") {
         return None;
     }
-    let output = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-version").arg(version).output().ok()?;
-    let output_in_utf8 = str::from_utf8(&output.stderr).ok()?;
-    if *VERBOSE {
-        debugging!("java_home outputs: {}", output_in_utf8);
+    let java_home_x = Command::new(MACOS_LIBEXEC_JAVAHOME).arg("-x").output().ok()?;
+    let java_home_plist_value = match Value::from_reader_xml(&*java_home_x.stdout) {
+        Err(e) => {
+            debugging!("Parse java_home outputs failed: {}", e);
+            return None;
+        }
+        Ok(val) => val,
+    };
+    let java_home_plist_value_array = match java_home_plist_value.as_array() {
+        None => {
+            debugging!("Covert java_home plist output to array failed: {:?}", java_home_plist_value);
+            return None;
+        }
+        Some(val) => val,
+    };
+    for java_home_plist_item in java_home_plist_value_array {
+        debugging!("Checking: {:?}", java_home_plist_item);
+        if let Some(jvm_item) = java_home_plist_item.as_dictionary() {
+            let jvm_version_value = jvm_item.get("JVMVersion");
+            let jvm_home_path_value = jvm_item.get("JVMHomePath");
+            if let (Some(Value::String(jvm_version)), Some(Value::String(jvm_path))) = (jvm_version_value, jvm_home_path_value) {
+                debugging!("Check version: {} vs {}", jvm_version, version);
+                if jvm_version.starts_with(version) {
+                    debugging!("Check version success: {} -> {}", jvm_version, jvm_path);
+                    return Some(jvm_path.into());
+                }
+            }
+        }
     }
-    if output_in_utf8.contains("Unable to find any JVMs") {
-        None
-    } else {
-        Some(str::from_utf8(&output.stdout).ok()?.trim().to_string())
-    }
+    None
 }
 
 pub fn get_local_java_home(version: &str) -> Option<String> {
@@ -73,7 +97,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
     let paths = fs::read_dir(Path::new(&local_java_home_base_dir)).ok()?;
     for path in paths {
         if let Ok(dir_entry) = path {
-            if let Some(p)= dir_entry.path().to_str() {
+            if let Some(p) = dir_entry.path().to_str() {
                 if *VERBOSE {
                     debugging!("Try match path: {}", p);
                 }
@@ -82,7 +106,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                     path_name = &path_name[..path_name.len() - 1]
                 }
                 if let Some(i) = path_name.rfind('/') {
-                    path_name = &path_name[i+1..];
+                    path_name = &path_name[i + 1..];
                 }
                 let matched_path_opt = if (path_name.starts_with("jdk-") && (&path_name[4..]).starts_with(version))
                     || (path_name.starts_with("jdk") && (&path_name[3..]).starts_with(version)) {
@@ -98,7 +122,7 @@ pub fn get_local_java_home(version: &str) -> Option<String> {
                         Some(format!("{}/{}", matched_path, "Contents/Home"))
                     } else {
                         Some(matched_path.to_string())
-                    }
+                    };
                 }
             }
         }
